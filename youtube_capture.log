@@ -1,0 +1,461 @@
+2025-09-14 05:17:28,308 - INFO - HTTP Request: POST https://api.openai.com/v1/chat/completions "HTTP/1.1 401 Unauthorized"
+2025-09-14 05:17:28,313 - ERROR - Error processing query: Error code: 401 - {'error': {'message': 'Incorrect API key provided: your-key. You can find your API key at https://platform.openai.com/account/api-keys.', 'type': 'invalid_request_error', 'param': None, 'code': 'invalid_api_key'}}
+2025-09-14 05:19:26,292 - INFO - HTTP Request: POST https://api.openai.com/v1/chat/completions "HTTP/1.1 401 Unauthorized"
+2025-09-14 05:19:26,295 - ERROR - Error processing query: Error code: 401 - {'error': {'message': 'Incorrect API key provided: your-key. You can find your API key at https://platform.openai.com/account/api-keys.', 'type': 'invalid_request_error', 'param': None, 'code': 'invalid_api_key'}}
+2025-09-14 05:20:22,957 - INFO - HTTP Request: POST https://api.openai.com/v1/chat/completions "HTTP/1.1 401 Unauthorized"
+2025-09-14 05:20:22,961 - ERROR - Error processing query: Error code: 401 - {'error': {'message': 'Incorrect API key provided: your-key. You can find your API key at https://platform.openai.com/account/api-keys.', 'type': 'invalid_request_error', 'param': None, 'code': 'invalid_api_key'}}
+2025-09-14 05:20:41,518 - INFO - HTTP Request: POST https://api.openai.com/v1/chat/completions "HTTP/1.1 200 OK"
+2025-09-14 05:20:41,545 - ERROR - Failed to load config: [Errno 2] No such file or directory: 'config.yaml'
+2025-09-14 05:20:41,545 - ERROR - Error processing query: [Errno 2] No such file or directory: 'config.yaml'
+2025-09-14 05:21:13,161 - INFO - HTTP Request: POST https://api.openai.com/v1/chat/completions "HTTP/1.1 200 OK"
+2025-09-14 05:21:13,175 - INFO - Loading trained model: /Users/jlee/Desktop/github/cv-training/models/beach_detection_100e30p20we1e-5lr10f.pt
+2025-09-14 05:21:13,333 - INFO - Capturing current beach snapshot...
+2025-09-14 05:21:13,333 - INFO - Capturing beach snapshot...
+2025-09-14 05:21:15,999 - INFO - Getting stream URL for: https://www.youtube.com/watch?v=DNnj_9bVWGI
+2025-09-14 05:21:18,270 - ERROR - Error getting stream URL: [0;31mERROR:[0m [youtube] DNnj_9bVWGI: This live stream recording is not available.
+2025-09-14 05:21:18,271 - ERROR - Failed to get stream URL (attempt 1/3)
+2025-09-14 05:21:18,271 - INFO - Retrying in 2.0 seconds...
+2025-09-14 05:21:20,284 - INFO - Getting stream URL for: https://www.youtube.com/watch?v=DNnj_9bVWGI
+2025-09-14 05:21:22,730 - ERROR - Error getting stream URL: [0;31mERROR:[0m [youtube] DNnj_9bVWGI: This live stream recording is not available.
+2025-09-14 05:21:22,731 - ERROR - Failed to get stream URL (attempt 2/3)
+2025-09-14 05:21:22,731 - INFO - Retrying in 4.4 seconds...
+2025-09-14 05:21:27,128 - INFO - Getting stream URL for: https://www.youtube.com/watch?v=DNnj_9bVWGI
+2025-09-14 05:21:29,297 - ERROR - Error getting stream URL: [0;31mERROR:[0m [youtube] DNnj_9bVWGI: This live stream recording is not available.
+2025-09-14 05:21:29,297 - ERROR - Failed to get stream URL (attempt 3/3)
+2025-09-14 05:21:29,297 - ERROR - Failed to capture snapshot after 3 attempts
+2025-09-14 05:21:29,297 - ERROR - Error capturing snapshot: Failed to capture snapshot
+2025-09-14 05:21:29,297 - ERROR - Error getting beach status: Failed to capture snapshot
+2025-09-14 05:21:31,375 - INFO - HTTP Request: POST https://api.openai.com/v1/chat/completions "HTTP/1.1 200 OK"
+2025-09-14 05:23:06,421 - INFO - HTTP Request: POST https://api.openai.com/v1/chat/completions "HTTP/1.1 200 OK"
+2025-09-14 05:23:06,449 - INFO - Loading trained model: /Users/jlee/Desktop/github/cv-training/models/beach_detection_100e30p20we1e-5lr10f.pt
+2025-09-14 05:23:06,596 - INFO - Capturing current beach snapshot...
+2025-09-14 05:23:06,596 - INFO - Capturing beach snapshot...
+2025-09-14 05:23:06,724 - INFO - Getting stream URL for: https://www.youtube.com/watch?v=c3HxYfhhFu8
+2025-09-14 05:23:09,039 - INFO - Chosen format: 1912x1080 @ 30.0fps | vcodec=avc1.640028 acodec=mp4a.40.2 prot=m3u8_native ext=mp4
+2025-09-14 05:23:11,056 - INFO - Saved: youtube_snapshot_20250914_052311.jpg | Size: 1.0MB
+2025-09-14 05:23:11,056 - INFO - Successfully captured: data/snapshots/youtube_snapshot_20250914_052311.jpg
+2025-09-14 05:23:11,056 - INFO - Analyzing beach activity...
+2025-09-14 05:23:13,950 - INFO - Detected 0 people and 0 boats
+2025-09-14 05:23:13,951 - INFO - Beach analysis complete: Beach is empty with 0 people and 0 boats visible
+2025-09-14 05:23:16,121 - INFO - HTTP Request: POST https://api.openai.com/v1/chat/completions "HTTP/1.1 200 OK"
+2025-09-14 05:54:36,436 - INFO - HTTP Request: POST https://api.openai.com/v1/chat/completions "HTTP/1.1 200 OK"
+2025-09-14 05:54:36,456 - INFO - file_cache is only supported with oauth2client<4.0.0
+2025-09-14 05:54:37,084 - INFO - Loading trained model: /Users/jlee/Desktop/github/cv-training/models/beach_detection_100e30p20we1e-5lr10f.pt
+2025-09-14 05:54:37,237 - INFO - Capturing current beach snapshot...
+2025-09-14 05:54:37,237 - INFO - Capturing beach snapshot...
+2025-09-14 05:54:37,365 - INFO - Getting stream URL for: https://www.youtube.com/watch?v=c3HxYfhhFu8
+2025-09-14 05:54:39,829 - INFO - Chosen format: 1912x1080 @ 30.0fps | vcodec=avc1.640028 acodec=mp4a.40.2 prot=m3u8_native ext=mp4
+2025-09-14 05:54:41,327 - INFO - Saved: youtube_snapshot_20250914_055441.jpg | Size: 1.1MB
+2025-09-14 05:54:41,327 - INFO - Successfully captured: data/snapshots/youtube_snapshot_20250914_055441.jpg
+2025-09-14 05:54:41,327 - INFO - Analyzing beach activity...
+2025-09-14 05:54:43,739 - INFO - Detected 1 people and 3 boats
+2025-09-14 05:54:43,740 - INFO - Beach analysis complete: Beach is moderate with 1 people and 3 boats visible
+2025-09-14 05:54:48,347 - INFO - HTTP Request: POST https://api.openai.com/v1/chat/completions "HTTP/1.1 200 OK"
+2025-09-14 05:59:57,283 - INFO - HTTP Request: POST https://api.openai.com/v1/chat/completions "HTTP/1.1 200 OK"
+2025-09-14 05:59:57,312 - INFO - file_cache is only supported with oauth2client<4.0.0
+2025-09-14 05:59:57,910 - INFO - Loading trained model: /Users/jlee/Desktop/github/cv-training/models/beach_detection_100e30p20we1e-5lr10f.pt
+2025-09-14 05:59:58,048 - INFO - Capturing current beach snapshot...
+2025-09-14 05:59:58,048 - INFO - Capturing beach snapshot...
+2025-09-14 05:59:58,049 - INFO - Getting stream URL for: https://www.youtube.com/watch?v=c3HxYfhhFu8
+2025-09-14 06:00:00,684 - INFO - Chosen format: 1912x1080 @ 30.0fps | vcodec=avc1.640028 acodec=mp4a.40.2 prot=m3u8_native ext=mp4
+2025-09-14 06:00:01,839 - INFO - Saved: youtube_snapshot_20250914_060001.jpg | Size: 1.0MB
+2025-09-14 06:00:01,840 - INFO - Successfully captured: data/snapshots/youtube_snapshot_20250914_060001.jpg
+2025-09-14 06:00:01,840 - INFO - Analyzing beach activity...
+2025-09-14 06:00:04,219 - INFO - Detected 2 people and 3 boats
+2025-09-14 06:00:04,219 - INFO - Beach analysis complete: Beach is moderate with 2 people and 3 boats visible
+2025-09-14 06:00:06,723 - INFO - HTTP Request: POST https://api.openai.com/v1/chat/completions "HTTP/1.1 200 OK"
+2025-09-14 06:05:12,907 - INFO - HTTP Request: POST https://api.openai.com/v1/chat/completions "HTTP/1.1 200 OK"
+2025-09-14 06:05:12,931 - INFO - file_cache is only supported with oauth2client<4.0.0
+2025-09-14 06:05:13,486 - INFO - Loading trained model: /Users/jlee/Desktop/github/cv-training/models/beach_detection_100e30p20we1e-5lr10f.pt
+2025-09-14 06:05:13,634 - INFO - Capturing current beach snapshot...
+2025-09-14 06:05:13,634 - INFO - Capturing beach snapshot...
+2025-09-14 06:05:13,635 - INFO - Getting stream URL for: https://www.youtube.com/watch?v=c3HxYfhhFu8
+2025-09-14 06:05:16,174 - INFO - Chosen format: 1912x1080 @ 30.0fps | vcodec=avc1.640028 acodec=mp4a.40.2 prot=m3u8_native ext=mp4
+2025-09-14 06:05:17,350 - INFO - Saved: youtube_snapshot_20250914_060517.jpg | Size: 1.1MB
+2025-09-14 06:05:17,350 - INFO - Successfully captured: data/snapshots/youtube_snapshot_20250914_060517.jpg
+2025-09-14 06:05:17,350 - INFO - Analyzing beach activity...
+2025-09-14 06:05:19,707 - INFO - Detected 3 people and 4 boats
+2025-09-14 06:05:19,707 - INFO - Beach analysis complete: Beach is moderate with 3 people and 4 boats visible
+2025-09-14 06:05:21,986 - INFO - HTTP Request: POST https://api.openai.com/v1/chat/completions "HTTP/1.1 200 OK"
+2025-09-14 06:06:08,773 - INFO - HTTP Request: POST https://api.openai.com/v1/chat/completions "HTTP/1.1 200 OK"
+2025-09-14 06:06:08,791 - INFO - file_cache is only supported with oauth2client<4.0.0
+2025-09-14 06:06:09,358 - INFO - Loading trained model: /Users/jlee/Desktop/github/cv-training/models/beach_detection_100e30p20we1e-5lr10f.pt
+2025-09-14 06:06:09,509 - INFO - Capturing current beach snapshot...
+2025-09-14 06:06:09,509 - INFO - Capturing beach snapshot...
+2025-09-14 06:06:09,509 - INFO - Getting stream URL for: https://www.youtube.com/watch?v=c3HxYfhhFu8
+2025-09-14 06:06:12,390 - INFO - Chosen format: 1912x1080 @ 30.0fps | vcodec=avc1.640028 acodec=mp4a.40.2 prot=m3u8_native ext=mp4
+2025-09-14 06:06:13,516 - INFO - Saved: youtube_snapshot_20250914_060613.jpg | Size: 1.1MB
+2025-09-14 06:06:13,516 - INFO - Successfully captured: data/snapshots/youtube_snapshot_20250914_060613.jpg
+2025-09-14 06:06:13,516 - INFO - Analyzing beach activity...
+2025-09-14 06:06:15,943 - INFO - Detected 6 people and 4 boats
+2025-09-14 06:06:15,943 - INFO - Beach analysis complete: Beach is moderate with 6 people and 4 boats visible
+2025-09-14 06:06:18,361 - INFO - HTTP Request: POST https://api.openai.com/v1/chat/completions "HTTP/1.1 200 OK"
+2025-09-14 06:12:26,130 - INFO - HTTP Request: POST https://api.openai.com/v1/chat/completions "HTTP/1.1 200 OK"
+2025-09-14 06:12:26,151 - INFO - file_cache is only supported with oauth2client<4.0.0
+2025-09-14 06:12:26,776 - INFO - Loading trained model: /Users/jlee/Desktop/github/cv-training/models/beach_detection_100e30p20we1e-5lr10f.pt
+2025-09-14 06:12:26,938 - INFO - Capturing current beach snapshot...
+2025-09-14 06:12:26,938 - INFO - Capturing beach snapshot...
+2025-09-14 06:12:26,938 - INFO - Getting stream URL for: https://www.youtube.com/watch?v=c3HxYfhhFu8
+2025-09-14 06:12:29,481 - INFO - Chosen format: 1912x1080 @ 30.0fps | vcodec=avc1.640028 acodec=mp4a.40.2 prot=m3u8_native ext=mp4
+2025-09-14 06:12:30,681 - INFO - Saved: youtube_snapshot_20250914_061230.jpg | Size: 1.2MB
+2025-09-14 06:12:30,681 - INFO - Successfully captured: data/snapshots/youtube_snapshot_20250914_061230.jpg
+2025-09-14 06:12:30,681 - INFO - Analyzing beach activity...
+2025-09-14 06:12:32,972 - INFO - Detected 6 people and 3 boats
+2025-09-14 06:12:32,972 - INFO - Beach analysis complete: Beach is moderate with 6 people and 3 boats visible
+2025-09-14 06:12:35,134 - INFO - HTTP Request: POST https://api.openai.com/v1/chat/completions "HTTP/1.1 200 OK"
+2025-09-14 06:17:57,699 - INFO - HTTP Request: POST https://api.openai.com/v1/chat/completions "HTTP/1.1 200 OK"
+2025-09-14 06:17:57,722 - INFO - file_cache is only supported with oauth2client<4.0.0
+2025-09-14 06:17:58,271 - INFO - Loading finetuned model: /Users/jlee/Desktop/github/cv-training/models/beach_detection_100e30p20we1e-5lr10f.pt
+2025-09-14 06:17:58,427 - INFO - Capturing current beach snapshot...
+2025-09-14 06:17:58,427 - INFO - Capturing beach snapshot...
+2025-09-14 06:17:58,559 - INFO - Getting stream URL for: https://www.youtube.com/watch?v=c3HxYfhhFu8
+2025-09-14 06:18:01,403 - INFO - Chosen format: 1912x1080 @ 30.0fps | vcodec=avc1.640028 acodec=mp4a.40.2 prot=m3u8_native ext=mp4
+2025-09-14 06:18:02,650 - INFO - Saved: youtube_snapshot_20250914_061802.jpg | Size: 1.4MB
+2025-09-14 06:18:02,650 - INFO - Successfully captured: data/snapshots/youtube_snapshot_20250914_061802.jpg
+2025-09-14 06:18:02,650 - INFO - Analyzing beach activity...
+2025-09-14 06:18:05,110 - INFO - Detected 9 people and 3 boats
+2025-09-14 06:18:05,122 - INFO - Saved annotated image to: data/snapshots/youtube_snapshot_20250914_061802_annotated.jpg
+2025-09-14 06:18:05,122 - INFO - Beach analysis complete: Beach is moderate with 9 people and 3 boats visible
+2025-09-14 06:18:06,702 - INFO - HTTP Request: POST https://api.openai.com/v1/chat/completions "HTTP/1.1 200 OK"
+2025-09-14 06:31:59,379 - INFO - HTTP Request: POST https://api.openai.com/v1/chat/completions "HTTP/1.1 200 OK"
+2025-09-14 06:31:59,404 - INFO - Loading finetuned model: /Users/jlee/Desktop/github/cv-training/models/beach_detection_100e30p20we1e-5lr10f.pt
+2025-09-14 06:31:59,554 - INFO - Capturing current beach snapshot...
+2025-09-14 06:31:59,555 - INFO - Capturing beach snapshot...
+2025-09-14 06:31:59,555 - ERROR - Error getting stream URL: No module named 'yt_dlp'
+2025-09-14 06:31:59,555 - ERROR - Failed to get stream URL (attempt 1/3)
+2025-09-14 06:31:59,555 - INFO - Retrying in 3.0 seconds...
+2025-09-14 06:32:02,523 - ERROR - Error getting stream URL: No module named 'yt_dlp'
+2025-09-14 06:32:02,523 - ERROR - Failed to get stream URL (attempt 2/3)
+2025-09-14 06:32:02,523 - INFO - Retrying in 4.2 seconds...
+2025-09-14 06:32:06,681 - ERROR - Error getting stream URL: No module named 'yt_dlp'
+2025-09-14 06:32:06,681 - ERROR - Failed to get stream URL (attempt 3/3)
+2025-09-14 06:32:06,682 - ERROR - Failed to capture snapshot after 3 attempts
+2025-09-14 06:32:06,682 - ERROR - Error capturing snapshot: Failed to capture snapshot
+2025-09-14 06:32:06,682 - ERROR - Error getting beach status: Failed to capture snapshot
+2025-09-14 06:36:59,225 - INFO - HTTP Request: POST https://api.openai.com/v1/chat/completions "HTTP/1.1 200 OK"
+2025-09-14 06:36:59,245 - INFO - file_cache is only supported with oauth2client<4.0.0
+2025-09-14 06:36:59,847 - INFO - Loading finetuned model: /Users/jlee/Desktop/github/cv-training/models/beach_detection_100e30p20we1e-5lr10f.pt
+2025-09-14 06:37:00,052 - INFO - Capturing current beach snapshot...
+2025-09-14 06:37:00,053 - INFO - Capturing beach snapshot...
+2025-09-14 06:37:00,053 - ERROR - Error getting stream URL: No module named 'yt_dlp'
+2025-09-14 06:37:00,053 - ERROR - Failed to get stream URL (attempt 1/3)
+2025-09-14 06:37:00,053 - INFO - Retrying in 2.9 seconds...
+2025-09-14 06:37:02,922 - ERROR - Error getting stream URL: No module named 'yt_dlp'
+2025-09-14 06:37:02,922 - ERROR - Failed to get stream URL (attempt 2/3)
+2025-09-14 06:37:02,922 - INFO - Retrying in 4.9 seconds...
+2025-09-14 06:37:07,868 - ERROR - Error getting stream URL: No module named 'yt_dlp'
+2025-09-14 06:37:07,875 - ERROR - Failed to get stream URL (attempt 3/3)
+2025-09-14 06:37:07,875 - ERROR - Failed to capture snapshot after 3 attempts
+2025-09-14 06:37:07,875 - ERROR - Error capturing snapshot: Failed to capture snapshot
+2025-09-14 06:37:07,875 - ERROR - Error getting beach status: Failed to capture snapshot
+2025-09-14 06:37:09,114 - INFO - HTTP Request: POST https://api.openai.com/v1/chat/completions "HTTP/1.1 200 OK"
+2025-09-14 06:38:18,390 - INFO - HTTP Request: POST https://api.openai.com/v1/chat/completions "HTTP/1.1 200 OK"
+2025-09-14 06:38:18,407 - INFO - file_cache is only supported with oauth2client<4.0.0
+2025-09-14 06:38:18,981 - INFO - Loading finetuned model: /Users/jlee/Desktop/github/cv-training/models/beach_detection_100e30p20we1e-5lr10f.pt
+2025-09-14 06:38:19,134 - INFO - Capturing current beach snapshot...
+2025-09-14 06:38:19,134 - INFO - Capturing beach snapshot...
+2025-09-14 06:38:19,267 - INFO - Getting stream URL for: https://www.youtube.com/watch?v=c3HxYfhhFu8
+2025-09-14 06:38:22,225 - INFO - Chosen format: 1912x1080 @ 30.0fps | vcodec=avc1.640028 acodec=mp4a.40.2 prot=m3u8_native ext=mp4
+2025-09-14 06:38:24,446 - INFO - Saved: youtube_snapshot_20250914_063824.jpg | Size: 1.4MB
+2025-09-14 06:38:24,446 - INFO - Successfully captured: data/snapshots/youtube_snapshot_20250914_063824.jpg
+2025-09-14 06:38:24,446 - INFO - Analyzing beach activity...
+2025-09-14 06:38:26,973 - INFO - Detected 5 people and 3 boats
+2025-09-14 06:38:26,983 - INFO - Saved annotated image to: data/snapshots/youtube_snapshot_20250914_063824_annotated.jpg
+2025-09-14 06:38:26,983 - INFO - Beach analysis complete: Beach is quiet with 5 people and 3 boats visible
+2025-09-14 06:38:29,346 - INFO - HTTP Request: POST https://api.openai.com/v1/chat/completions "HTTP/1.1 200 OK"
+2025-09-14 06:42:51,049 - INFO - HTTP Request: POST https://api.openai.com/v1/chat/completions "HTTP/1.1 200 OK"
+2025-09-14 06:42:51,083 - INFO - file_cache is only supported with oauth2client<4.0.0
+2025-09-14 06:42:51,662 - INFO - Loading finetuned model: /Users/jlee/Desktop/github/cv-training/models/beach_detection_100e30p20we1e-5lr10f.pt
+2025-09-14 06:42:51,803 - INFO - Capturing current beach snapshot...
+2025-09-14 06:42:51,803 - INFO - Capturing beach snapshot...
+2025-09-14 06:42:51,803 - INFO - Getting stream URL for: https://www.youtube.com/watch?v=c3HxYfhhFu8
+2025-09-14 06:42:54,373 - INFO - Chosen format: 1912x1080 @ 30.0fps | vcodec=avc1.640028 acodec=mp4a.40.2 prot=m3u8_native ext=mp4
+2025-09-14 06:42:56,490 - INFO - Saved: youtube_snapshot_20250914_064256.jpg | Size: 1.3MB
+2025-09-14 06:42:56,490 - INFO - Successfully captured: data/snapshots/youtube_snapshot_20250914_064256.jpg
+2025-09-14 06:42:56,490 - INFO - Analyzing beach activity...
+2025-09-14 06:42:58,892 - INFO - Detected 3 people and 3 boats
+2025-09-14 06:42:58,902 - INFO - Saved annotated image to: data/snapshots/youtube_snapshot_20250914_064256_annotated.jpg
+2025-09-14 06:42:58,902 - INFO - Beach analysis complete: Beach is quiet with 3 people and 3 boats visible
+2025-09-14 06:43:01,280 - INFO - HTTP Request: POST https://api.openai.com/v1/chat/completions "HTTP/1.1 200 OK"
+2025-09-14 07:19:55,416 - INFO - HTTP Request: POST https://api.openai.com/v1/chat/completions "HTTP/1.1 200 OK"
+2025-09-14 07:19:55,433 - INFO - file_cache is only supported with oauth2client<4.0.0
+2025-09-14 07:19:56,039 - INFO - Loading finetuned model: /Users/jlee/Desktop/github/cv-training/models/beach_detection_100e30p20we1e-5lr10f.pt
+2025-09-14 07:19:56,185 - INFO - Capturing current beach snapshot...
+2025-09-14 07:19:56,185 - INFO - Capturing beach snapshot...
+2025-09-14 07:19:56,185 - INFO - Getting stream URL for: https://www.youtube.com/watch?v=c3HxYfhhFu8
+2025-09-14 07:19:58,446 - INFO - Chosen format: 1912x1080 @ 30.0fps | vcodec=avc1.640028 acodec=mp4a.40.2 prot=m3u8_native ext=mp4
+2025-09-14 07:20:01,236 - INFO - Saved: youtube_snapshot_20250914_072001.jpg | Size: 1.4MB
+2025-09-14 07:20:01,237 - INFO - Successfully captured: data/snapshots/youtube_snapshot_20250914_072001.jpg
+2025-09-14 07:20:01,237 - INFO - Analyzing beach activity...
+2025-09-14 07:20:03,650 - INFO - Detected 9 people and 5 boats
+2025-09-14 07:20:03,661 - INFO - Saved annotated image to: data/snapshots/youtube_snapshot_20250914_072001_annotated.jpg
+2025-09-14 07:20:03,661 - INFO - Beach analysis complete: Beach is moderate with 9 people and 5 boats visible
+2025-09-14 07:20:05,770 - INFO - HTTP Request: POST https://api.openai.com/v1/chat/completions "HTTP/1.1 200 OK"
+2025-09-14 08:19:11,589 - INFO - HTTP Request: POST https://api.openai.com/v1/chat/completions "HTTP/1.1 200 OK"
+2025-09-14 08:19:11,614 - ERROR - Error processing query: BaseTool.__call__() missing 1 required positional argument: 'tool_input'
+2025-09-14 08:20:48,648 - INFO - HTTP Request: POST https://api.openai.com/v1/chat/completions "HTTP/1.1 200 OK"
+2025-09-14 08:20:48,676 - INFO - file_cache is only supported with oauth2client<4.0.0
+2025-09-14 08:20:49,254 - INFO - Loading finetuned model: /Users/jlee/Desktop/github/cv-training/models/beach_detection_100e30p20we1e-5lr10f.pt
+2025-09-14 08:20:49,417 - INFO - Capturing current beach snapshot...
+2025-09-14 08:20:49,417 - INFO - Capturing beach snapshot...
+2025-09-14 08:20:49,475 - INFO - Getting stream URL for: https://www.youtube.com/watch?v=c3HxYfhhFu8
+2025-09-14 08:20:52,438 - INFO - Chosen format: 1912x1080 @ 30.0fps | vcodec=avc1.640028 acodec=mp4a.40.2 prot=m3u8_native ext=mp4
+2025-09-14 08:20:55,455 - INFO - Saved: youtube_snapshot_20250914_082055.jpg | Size: 1.5MB
+2025-09-14 08:20:55,455 - INFO - Successfully captured: data/snapshots/youtube_snapshot_20250914_082055.jpg
+2025-09-14 08:20:55,455 - INFO - Analyzing beach activity...
+2025-09-14 08:20:57,899 - INFO - Detected 11 people and 3 boats
+2025-09-14 08:20:57,910 - INFO - Saved annotated image to: data/snapshots/youtube_snapshot_20250914_082055_annotated.jpg
+2025-09-14 08:20:57,910 - INFO - Beach analysis complete: Beach is moderate with 11 people and 3 boats visible
+2025-09-14 08:20:59,755 - INFO - HTTP Request: POST https://api.openai.com/v1/chat/completions "HTTP/1.1 200 OK"
+2025-09-14 08:21:16,861 - INFO - HTTP Request: POST https://api.openai.com/v1/chat/completions "HTTP/1.1 200 OK"
+2025-09-14 08:21:16,878 - INFO - file_cache is only supported with oauth2client<4.0.0
+2025-09-14 08:21:17,471 - INFO - Loading finetuned model: /Users/jlee/Desktop/github/cv-training/models/beach_detection_100e30p20we1e-5lr10f.pt
+2025-09-14 08:21:17,583 - ERROR - Error processing query: name 'os' is not defined
+2025-09-14 08:22:16,880 - INFO - HTTP Request: POST https://api.openai.com/v1/chat/completions "HTTP/1.1 200 OK"
+2025-09-14 08:22:16,906 - INFO - file_cache is only supported with oauth2client<4.0.0
+2025-09-14 08:22:17,509 - INFO - Loading finetuned model: /Users/jlee/Desktop/github/cv-training/models/beach_detection_100e30p20we1e-5lr10f.pt
+2025-09-14 08:22:19,102 - INFO - HTTP Request: POST https://api.openai.com/v1/chat/completions "HTTP/1.1 404 Not Found"
+2025-09-14 08:22:19,104 - ERROR - Error getting weather from image: Error code: 404 - {'error': {'message': 'The model `gpt-4-vision` does not exist or you do not have access to it.', 'type': 'invalid_request_error', 'param': None, 'code': 'model_not_found'}}
+2025-09-14 08:22:21,183 - INFO - HTTP Request: POST https://api.openai.com/v1/chat/completions "HTTP/1.1 200 OK"
+2025-09-14 08:23:30,712 - INFO - HTTP Request: POST https://api.openai.com/v1/chat/completions "HTTP/1.1 200 OK"
+2025-09-14 08:23:30,742 - INFO - file_cache is only supported with oauth2client<4.0.0
+2025-09-14 08:23:31,273 - INFO - Loading finetuned model: /Users/jlee/Desktop/github/cv-training/models/beach_detection_100e30p20we1e-5lr10f.pt
+2025-09-14 08:23:33,062 - INFO - HTTP Request: POST https://api.openai.com/v1/chat/completions "HTTP/1.1 404 Not Found"
+2025-09-14 08:23:33,064 - ERROR - Error getting weather from image: Error code: 404 - {'error': {'message': 'The model `gpt-4-vision-preview` has been deprecated, learn more here: https://platform.openai.com/docs/deprecations', 'type': 'invalid_request_error', 'param': None, 'code': 'model_not_found'}}
+2025-09-14 08:23:34,799 - INFO - HTTP Request: POST https://api.openai.com/v1/chat/completions "HTTP/1.1 200 OK"
+2025-09-14 08:25:30,757 - INFO - HTTP Request: POST https://api.openai.com/v1/chat/completions "HTTP/1.1 200 OK"
+2025-09-14 08:25:30,792 - INFO - file_cache is only supported with oauth2client<4.0.0
+2025-09-14 08:25:31,351 - INFO - Loading finetuned model: /Users/jlee/Desktop/github/cv-training/models/beach_detection_100e30p20we1e-5lr10f.pt
+2025-09-14 08:25:35,410 - INFO - HTTP Request: POST https://api.openai.com/v1/chat/completions "HTTP/1.1 200 OK"
+2025-09-14 08:25:37,691 - INFO - HTTP Request: POST https://api.openai.com/v1/chat/completions "HTTP/1.1 200 OK"
+2025-09-14 08:25:48,482 - INFO - HTTP Request: POST https://api.openai.com/v1/chat/completions "HTTP/1.1 200 OK"
+2025-09-14 08:26:03,043 - INFO - HTTP Request: POST https://api.openai.com/v1/chat/completions "HTTP/1.1 200 OK"
+2025-09-14 08:26:11,945 - INFO - HTTP Request: POST https://api.openai.com/v1/chat/completions "HTTP/1.1 200 OK"
+2025-09-14 08:26:11,965 - INFO - file_cache is only supported with oauth2client<4.0.0
+2025-09-14 08:26:12,608 - INFO - Loading finetuned model: /Users/jlee/Desktop/github/cv-training/models/beach_detection_100e30p20we1e-5lr10f.pt
+2025-09-14 08:26:12,768 - INFO - Capturing current beach snapshot...
+2025-09-14 08:26:12,768 - INFO - Capturing beach snapshot...
+2025-09-14 08:26:12,820 - INFO - Getting stream URL for: https://www.youtube.com/watch?v=c3HxYfhhFu8
+2025-09-14 08:26:15,628 - INFO - Chosen format: 1912x1080 @ 30.0fps | vcodec=avc1.640028 acodec=mp4a.40.2 prot=m3u8_native ext=mp4
+2025-09-14 08:26:18,642 - INFO - Saved: youtube_snapshot_20250914_082618.jpg | Size: 1.5MB
+2025-09-14 08:26:18,642 - INFO - Successfully captured: data/snapshots/youtube_snapshot_20250914_082618.jpg
+2025-09-14 08:26:18,642 - INFO - Analyzing beach activity...
+2025-09-14 08:26:20,884 - INFO - Detected 7 people and 4 boats
+2025-09-14 08:26:20,894 - INFO - Saved annotated image to: data/snapshots/youtube_snapshot_20250914_082618_annotated.jpg
+2025-09-14 08:26:20,894 - INFO - Beach analysis complete: Beach is moderate with 7 people and 4 boats visible
+2025-09-14 08:26:23,108 - INFO - HTTP Request: POST https://api.openai.com/v1/chat/completions "HTTP/1.1 200 OK"
+2025-09-14 08:31:09,653 - INFO - HTTP Request: POST https://api.openai.com/v1/chat/completions "HTTP/1.1 200 OK"
+2025-09-14 08:31:09,679 - INFO - file_cache is only supported with oauth2client<4.0.0
+2025-09-14 08:31:10,396 - INFO - Loading finetuned model: /Users/jlee/Desktop/github/cv-training/models/beach_detection_100e30p20we1e-5lr10f.pt
+2025-09-14 08:31:10,599 - INFO - Capturing current beach snapshot...
+2025-09-14 08:31:10,599 - INFO - Capturing beach snapshot...
+2025-09-14 08:31:10,648 - INFO - Getting stream URL for: https://www.youtube.com/watch?v=c3HxYfhhFu8
+2025-09-14 08:31:13,644 - INFO - Chosen format: 1912x1080 @ 30.0fps | vcodec=avc1.640028 acodec=mp4a.40.2 prot=m3u8_native ext=mp4
+2025-09-14 08:31:16,035 - INFO - Saved: youtube_snapshot_20250914_083116.jpg | Size: 1.5MB
+2025-09-14 08:31:16,036 - INFO - Successfully captured: data/snapshots/youtube_snapshot_20250914_083116.jpg
+2025-09-14 08:31:23,444 - INFO - HTTP Request: POST https://api.openai.com/v1/chat/completions "HTTP/1.1 200 OK"
+2025-09-14 08:31:25,737 - INFO - HTTP Request: POST https://api.openai.com/v1/chat/completions "HTTP/1.1 200 OK"
+2025-09-14 08:32:29,807 - INFO - HTTP Request: POST https://api.openai.com/v1/chat/completions "HTTP/1.1 200 OK"
+2025-09-14 08:32:29,827 - INFO - file_cache is only supported with oauth2client<4.0.0
+2025-09-14 08:32:30,446 - INFO - Loading finetuned model: /Users/jlee/Desktop/github/cv-training/models/beach_detection_100e30p20we1e-5lr10f.pt
+2025-09-14 08:32:30,605 - INFO - Capturing current beach snapshot...
+2025-09-14 08:32:30,605 - INFO - Capturing beach snapshot...
+2025-09-14 08:32:30,605 - INFO - Getting stream URL for: https://www.youtube.com/watch?v=c3HxYfhhFu8
+2025-09-14 08:32:32,769 - INFO - Chosen format: 1912x1080 @ 30.0fps | vcodec=avc1.640028 acodec=mp4a.40.2 prot=m3u8_native ext=mp4
+2025-09-14 08:32:35,061 - INFO - Saved: youtube_snapshot_20250914_083235.jpg | Size: 1.5MB
+2025-09-14 08:32:35,061 - INFO - Successfully captured: data/snapshots/youtube_snapshot_20250914_083235.jpg
+2025-09-14 08:32:35,061 - INFO - Analyzing beach activity...
+2025-09-14 08:32:37,388 - INFO - Detected 7 people and 4 boats
+2025-09-14 08:32:37,398 - INFO - Saved annotated image to: data/snapshots/youtube_snapshot_20250914_083235_annotated.jpg
+2025-09-14 08:32:37,398 - INFO - Beach analysis complete: Beach is moderate with 7 people and 4 boats visible
+2025-09-14 08:32:39,078 - INFO - HTTP Request: POST https://api.openai.com/v1/chat/completions "HTTP/1.1 200 OK"
+2025-09-14 09:04:45,790 - INFO - HTTP Request: POST https://api.openai.com/v1/chat/completions "HTTP/1.1 200 OK"
+2025-09-14 09:04:45,821 - INFO - file_cache is only supported with oauth2client<4.0.0
+2025-09-14 09:04:46,400 - INFO - Loading finetuned model: /Users/jlee/Desktop/github/cv-training/models/beach_detection_100e30p20we1e-5lr10f.pt
+2025-09-14 09:04:46,583 - INFO - Capturing current beach snapshot...
+2025-09-14 09:04:46,583 - INFO - Capturing beach snapshot...
+2025-09-14 09:04:46,696 - INFO - Getting stream URL for: https://www.youtube.com/watch?v=c3HxYfhhFu8
+2025-09-14 09:04:49,526 - INFO - Chosen format: 1912x1080 @ 30.0fps | vcodec=avc1.640028 acodec=mp4a.40.2 prot=m3u8_native ext=mp4
+2025-09-14 09:04:51,835 - INFO - Saved: youtube_snapshot_20250914_090451.jpg | Size: 1.6MB
+2025-09-14 09:04:51,835 - INFO - Successfully captured: data/snapshots/youtube_snapshot_20250914_090451.jpg
+2025-09-14 09:04:51,835 - INFO - Analyzing beach activity...
+2025-09-14 09:04:54,220 - INFO - Detected 4 people and 2 boats
+2025-09-14 09:04:54,229 - INFO - Saved annotated image to: data/snapshots/youtube_snapshot_20250914_090451_annotated.jpg
+2025-09-14 09:04:54,229 - INFO - Beach analysis complete: Beach is quiet with 4 people and 2 boats visible
+2025-09-14 09:04:54,234 - INFO - file_cache is only supported with oauth2client<4.0.0
+2025-09-14 09:04:54,801 - INFO - Loading finetuned model: /Users/jlee/Desktop/github/cv-training/models/beach_detection_100e30p20we1e-5lr10f.pt
+2025-09-14 09:04:54,922 - INFO - Capturing current beach snapshot...
+2025-09-14 09:04:54,922 - INFO - Capturing beach snapshot...
+2025-09-14 09:04:54,922 - INFO - Getting stream URL for: https://www.youtube.com/watch?v=c3HxYfhhFu8
+2025-09-14 09:04:57,270 - INFO - Chosen format: 1912x1080 @ 30.0fps | vcodec=avc1.640028 acodec=mp4a.40.2 prot=m3u8_native ext=mp4
+2025-09-14 09:04:59,565 - INFO - Saved: youtube_snapshot_20250914_090459.jpg | Size: 1.6MB
+2025-09-14 09:04:59,566 - INFO - Successfully captured: data/snapshots/youtube_snapshot_20250914_090459.jpg
+2025-09-14 09:05:04,402 - INFO - HTTP Request: POST https://api.openai.com/v1/chat/completions "HTTP/1.1 200 OK"
+2025-09-14 09:05:08,752 - INFO - HTTP Request: POST https://api.openai.com/v1/chat/completions "HTTP/1.1 200 OK"
+2025-09-14 09:57:14,091 - INFO - HTTP Request: POST https://api.openai.com/v1/chat/completions "HTTP/1.1 200 OK"
+2025-09-14 09:57:14,108 - INFO - file_cache is only supported with oauth2client<4.0.0
+2025-09-14 09:57:14,663 - ERROR - Error processing query: S3_BUCKET_NAME and S3_MODEL_KEY environment variables must be set.
+2025-09-14 09:58:15,516 - INFO - HTTP Request: POST https://api.openai.com/v1/chat/completions "HTTP/1.1 200 OK"
+2025-09-14 09:58:15,544 - INFO - file_cache is only supported with oauth2client<4.0.0
+2025-09-14 09:58:16,032 - ERROR - Error processing query: S3_BUCKET_NAME and S3_MODEL_KEY environment variables must be set.
+2025-09-14 09:59:33,032 - INFO - HTTP Request: POST https://api.openai.com/v1/chat/completions "HTTP/1.1 200 OK"
+2025-09-14 09:59:33,049 - INFO - file_cache is only supported with oauth2client<4.0.0
+2025-09-14 09:59:33,603 - INFO - Model not found locally. Downloading from S3...
+2025-09-14 09:59:33,604 - INFO - Source: s3://beach-detection-model-yolo-finetuned/beach_detection_100e30p20we1e-5lr10f.pt
+2025-09-14 09:59:33,622 - INFO - Found credentials in environment variables.
+2025-09-14 09:59:41,564 - INFO - Model successfully downloaded to: models_cache/beach_detection_100e30p20we1e-5lr10f.pt
+2025-09-14 09:59:41,567 - INFO - Loading YOLO model from: models_cache/beach_detection_100e30p20we1e-5lr10f.pt
+2025-09-14 09:59:41,766 - INFO - Capturing current beach snapshot...
+2025-09-14 09:59:41,766 - INFO - Capturing beach snapshot...
+2025-09-14 09:59:41,808 - INFO - Getting stream URL for: https://www.youtube.com/watch?v=c3HxYfhhFu8
+2025-09-14 09:59:44,676 - INFO - Chosen format: 1912x1080 @ 30.0fps | vcodec=avc1.640028 acodec=mp4a.40.2 prot=m3u8_native ext=mp4
+2025-09-14 09:59:47,279 - INFO - Saved: youtube_snapshot_20250914_095947.jpg | Size: 1.6MB
+2025-09-14 09:59:47,280 - INFO - Successfully captured: data/snapshots/youtube_snapshot_20250914_095947.jpg
+2025-09-14 09:59:47,280 - INFO - Analyzing beach activity...
+2025-09-14 09:59:49,667 - INFO - Detected 12 people and 1 boats
+2025-09-14 09:59:49,678 - INFO - Saved annotated image to: data/snapshots/youtube_snapshot_20250914_095947_annotated.jpg
+2025-09-14 09:59:49,678 - INFO - Beach analysis complete: Beach is moderate with 12 people and 1 boats visible.
+2025-09-14 09:59:51,068 - INFO - HTTP Request: POST https://api.openai.com/v1/chat/completions "HTTP/1.1 200 OK"
+2025-09-14 11:40:28,473 - INFO - Using OpenAI LLM
+2025-09-14 11:40:33,313 - INFO - HTTP Request: POST https://api.openai.com/v1/chat/completions "HTTP/1.1 200 OK"
+2025-09-14 11:42:39,542 - INFO - HTTP Request: POST https://api.openai.com/v1/chat/completions "HTTP/1.1 200 OK"
+2025-09-14 11:42:51,425 - INFO - Using local LLM
+2025-09-14 11:44:33,465 - INFO - Using local LLM
+2025-09-14 11:44:33,469 - INFO - LocalLLMClient initialized with base URL: http://localhost:8000
+2025-09-14 11:46:44,347 - INFO - Using local LLM
+2025-09-14 11:46:44,347 - INFO - LocalLLMClient initialized with base URL: http://localhost:8000
+2025-09-14 11:48:08,963 - INFO - Using local LLM
+2025-09-14 11:48:08,963 - INFO - LocalLLMClient initialized with base URL: http://localhost:8000
+2025-09-14 11:48:12,159 - INFO - Sending request to local LLM server: <s>[INST] User: You are a helpful beach monitoring...
+2025-09-14 11:48:12,177 - ERROR - Error generating response from local LLM: 500 Server Error: Internal Server Error for url: http://localhost:8000/generate
+2025-09-14 11:50:26,643 - INFO - Using local LLM
+2025-09-14 11:50:26,643 - INFO - LocalLLMClient initialized with base URL: http://localhost:8000
+2025-09-14 11:50:30,808 - INFO - Sending request to local LLM server: <s>[INST] User: You are a helpful beach monitoring...
+2025-09-14 11:50:30,825 - ERROR - Error generating response from local LLM: 500 Server Error: Internal Server Error for url: http://localhost:8000/generate
+2025-09-14 11:54:45,395 - INFO - Using local LLM
+2025-09-14 11:54:45,395 - INFO - LocalLLMClient initialized with base URL: http://localhost:8000
+2025-09-14 11:54:49,982 - INFO - Sending request to local LLM server: <s>[INST] User: You are a helpful beach monitoring...
+2025-09-14 11:54:49,989 - ERROR - Could not connect to LLM server at http://localhost:8000. Is the server running?
+2025-09-14 11:55:26,227 - INFO - Sending request to local LLM server: <s>[INST] User: You are a helpful beach monitoring...
+2025-09-14 12:00:03,282 - INFO - Using local LLM
+2025-09-14 12:01:01,142 - INFO - Using local LLM
+2025-09-14 12:01:08,503 - INFO - Using local LLM
+2025-09-14 12:03:16,721 - INFO - Using local LLM
+2025-09-14 12:05:03,209 - INFO - Using local LLM
+2025-09-14 12:06:57,550 - INFO - HTTP Request: POST https://api.openai.com/v1/chat/completions "HTTP/1.1 200 OK"
+2025-09-14 12:07:52,329 - INFO - HTTP Request: POST https://api.openai.com/v1/chat/completions "HTTP/1.1 200 OK"
+2025-09-14 12:07:52,353 - INFO - file_cache is only supported with oauth2client<4.0.0
+2025-09-14 12:07:53,155 - INFO - Loading YOLO model from: models_cache/beach_detection_100e30p20we1e-5lr10f.pt
+2025-09-14 12:07:53,285 - INFO - Capturing current beach snapshot...
+2025-09-14 12:07:53,285 - INFO - Capturing beach snapshot...
+2025-09-14 12:07:53,438 - INFO - Getting stream URL for: https://www.youtube.com/watch?v=c3HxYfhhFu8
+2025-09-14 12:07:56,328 - INFO - Chosen format: 1912x1080 @ 30.0fps | vcodec=avc1.640028 acodec=mp4a.40.2 prot=m3u8_native ext=mp4
+2025-09-14 12:07:58,628 - INFO - Saved: youtube_snapshot_20250914_120758.jpg | Size: 1.5MB
+2025-09-14 12:07:58,628 - INFO - Successfully captured: data/snapshots/youtube_snapshot_20250914_120758.jpg
+2025-09-14 12:07:58,628 - INFO - Analyzing beach activity...
+2025-09-14 12:08:00,809 - INFO - Detected 27 people and 1 boats
+2025-09-14 12:08:00,823 - INFO - Saved annotated image to: data/snapshots/youtube_snapshot_20250914_120758_annotated.jpg
+2025-09-14 12:08:00,823 - INFO - Beach analysis complete: Beach is busy with 27 people and 1 boats visible.
+2025-09-14 12:08:02,180 - INFO - HTTP Request: POST https://api.openai.com/v1/chat/completions "HTTP/1.1 200 OK"
+2025-09-14 12:09:58,157 - INFO - HTTP Request: POST https://api.openai.com/v1/chat/completions "HTTP/1.1 200 OK"
+2025-09-14 12:09:58,184 - INFO - file_cache is only supported with oauth2client<4.0.0
+2025-09-14 12:09:58,998 - INFO - Loading YOLO model from: models_cache/beach_detection_100e30p20we1e-5lr10f.pt
+2025-09-14 12:09:59,125 - INFO - Capturing current beach snapshot...
+2025-09-14 12:09:59,126 - INFO - Capturing beach snapshot...
+2025-09-14 12:09:59,166 - INFO - Getting stream URL for: https://www.youtube.com/watch?v=c3HxYfhhFu8
+2025-09-14 12:10:01,909 - INFO - Chosen format: 1912x1080 @ 30.0fps | vcodec=avc1.640028 acodec=mp4a.40.2 prot=m3u8_native ext=mp4
+2025-09-14 12:10:03,940 - INFO - Saved: youtube_snapshot_20250914_121003.jpg | Size: 1.5MB
+2025-09-14 12:10:03,940 - INFO - Successfully captured: data/snapshots/youtube_snapshot_20250914_121003.jpg
+2025-09-14 12:10:03,940 - INFO - Analyzing beach activity...
+2025-09-14 12:10:06,190 - INFO - Detected 26 people and 1 boats
+2025-09-14 12:10:06,202 - INFO - Saved annotated image to: data/snapshots/youtube_snapshot_20250914_121003_annotated.jpg
+2025-09-14 12:10:06,203 - INFO - Beach analysis complete: Beach is busy with 26 people and 1 boats visible.
+2025-09-14 12:10:07,804 - INFO - HTTP Request: POST https://api.openai.com/v1/chat/completions "HTTP/1.1 200 OK"
+2025-09-14 12:10:22,756 - INFO - HTTP Request: POST https://api.openai.com/v1/chat/completions "HTTP/1.1 200 OK"
+2025-09-14 12:10:22,774 - INFO - file_cache is only supported with oauth2client<4.0.0
+2025-09-14 12:10:23,302 - INFO - Loading YOLO model from: models_cache/beach_detection_100e30p20we1e-5lr10f.pt
+2025-09-14 12:10:23,423 - INFO - Capturing current beach snapshot...
+2025-09-14 12:10:23,423 - INFO - Capturing beach snapshot...
+2025-09-14 12:10:23,423 - INFO - Getting stream URL for: https://www.youtube.com/watch?v=c3HxYfhhFu8
+2025-09-14 12:10:25,825 - INFO - Chosen format: 1912x1080 @ 30.0fps | vcodec=avc1.640028 acodec=mp4a.40.2 prot=m3u8_native ext=mp4
+2025-09-14 12:10:27,723 - INFO - Saved: youtube_snapshot_20250914_121027.jpg | Size: 1.5MB
+2025-09-14 12:10:27,724 - INFO - Successfully captured: data/snapshots/youtube_snapshot_20250914_121027.jpg
+2025-09-14 12:10:27,724 - INFO - Analyzing beach activity...
+2025-09-14 12:10:29,690 - INFO - Detected 19 people and 1 boats
+2025-09-14 12:10:29,701 - INFO - Saved annotated image to: data/snapshots/youtube_snapshot_20250914_121027_annotated.jpg
+2025-09-14 12:10:29,701 - INFO - Beach analysis complete: Beach is busy with 19 people and 1 boats visible.
+2025-09-14 12:10:29,704 - INFO - file_cache is only supported with oauth2client<4.0.0
+2025-09-14 12:10:30,185 - INFO - Loading YOLO model from: models_cache/beach_detection_100e30p20we1e-5lr10f.pt
+2025-09-14 12:10:30,303 - INFO - Capturing current beach snapshot...
+2025-09-14 12:10:30,303 - INFO - Capturing beach snapshot...
+2025-09-14 12:10:30,303 - INFO - Getting stream URL for: https://www.youtube.com/watch?v=c3HxYfhhFu8
+2025-09-14 12:10:32,588 - INFO - Chosen format: 1912x1080 @ 30.0fps | vcodec=avc1.640028 acodec=mp4a.40.2 prot=m3u8_native ext=mp4
+2025-09-14 12:10:34,651 - INFO - Saved: youtube_snapshot_20250914_121034.jpg | Size: 1.4MB
+2025-09-14 12:10:34,651 - INFO - Successfully captured: data/snapshots/youtube_snapshot_20250914_121034.jpg
+2025-09-14 12:10:36,374 - INFO - HTTP Request: POST https://api.openai.com/v1/chat/completions "HTTP/1.1 400 Bad Request"
+2025-09-14 12:10:36,375 - ERROR - Error getting weather from image: Error code: 400 - {'error': {'message': 'Invalid content type. image_url is only supported by certain models.', 'type': 'invalid_request_error', 'param': 'messages.[0].content.[1].type', 'code': None}}
+2025-09-14 12:10:38,363 - INFO - HTTP Request: POST https://api.openai.com/v1/chat/completions "HTTP/1.1 200 OK"
+2025-09-14 12:11:19,571 - INFO - HTTP Request: POST https://api.openai.com/v1/chat/completions "HTTP/1.1 200 OK"
+2025-09-14 12:11:19,592 - INFO - file_cache is only supported with oauth2client<4.0.0
+2025-09-14 12:11:20,099 - INFO - Loading YOLO model from: models_cache/beach_detection_100e30p20we1e-5lr10f.pt
+2025-09-14 12:11:20,245 - INFO - Capturing current beach snapshot...
+2025-09-14 12:11:20,245 - INFO - Capturing beach snapshot...
+2025-09-14 12:11:20,245 - INFO - Getting stream URL for: https://www.youtube.com/watch?v=c3HxYfhhFu8
+2025-09-14 12:11:22,534 - INFO - Chosen format: 1912x1080 @ 30.0fps | vcodec=avc1.640028 acodec=mp4a.40.2 prot=m3u8_native ext=mp4
+2025-09-14 12:11:24,513 - INFO - Saved: youtube_snapshot_20250914_121124.jpg | Size: 1.5MB
+2025-09-14 12:11:24,514 - INFO - Successfully captured: data/snapshots/youtube_snapshot_20250914_121124.jpg
+2025-09-14 12:11:24,514 - INFO - Analyzing beach activity...
+2025-09-14 12:11:26,759 - INFO - Detected 24 people and 1 boats
+2025-09-14 12:11:26,772 - INFO - Saved annotated image to: data/snapshots/youtube_snapshot_20250914_121124_annotated.jpg
+2025-09-14 12:11:26,772 - INFO - Beach analysis complete: Beach is busy with 24 people and 1 boats visible.
+2025-09-14 12:11:26,776 - INFO - file_cache is only supported with oauth2client<4.0.0
+2025-09-14 12:11:27,411 - INFO - Loading YOLO model from: models_cache/beach_detection_100e30p20we1e-5lr10f.pt
+2025-09-14 12:11:27,518 - INFO - Capturing current beach snapshot...
+2025-09-14 12:11:27,519 - INFO - Capturing beach snapshot...
+2025-09-14 12:11:27,519 - INFO - Getting stream URL for: https://www.youtube.com/watch?v=c3HxYfhhFu8
+2025-09-14 12:11:29,943 - INFO - Chosen format: 1912x1080 @ 30.0fps | vcodec=avc1.640028 acodec=mp4a.40.2 prot=m3u8_native ext=mp4
+2025-09-14 12:11:31,678 - INFO - Saved: youtube_snapshot_20250914_121131.jpg | Size: 1.5MB
+2025-09-14 12:11:31,678 - INFO - Successfully captured: data/snapshots/youtube_snapshot_20250914_121131.jpg
+2025-09-14 12:11:33,735 - INFO - HTTP Request: POST https://api.openai.com/v1/chat/completions "HTTP/1.1 400 Bad Request"
+2025-09-14 12:11:33,736 - ERROR - Error getting weather from image: Error code: 400 - {'error': {'message': 'Invalid content type. image_url is only supported by certain models.', 'type': 'invalid_request_error', 'param': 'messages.[0].content.[1].type', 'code': None}}
+2025-09-14 12:11:36,017 - INFO - HTTP Request: POST https://api.openai.com/v1/chat/completions "HTTP/1.1 200 OK"
+2025-09-14 12:18:26,538 - INFO - HTTP Request: POST https://api.openai.com/v1/chat/completions "HTTP/1.1 200 OK"
+2025-09-14 12:18:26,567 - INFO - file_cache is only supported with oauth2client<4.0.0
+2025-09-14 12:18:27,254 - INFO - Loading YOLO model from: models_cache/beach_detection_100e30p20we1e-5lr10f.pt
+2025-09-14 12:18:27,427 - INFO - Capturing current beach snapshot...
+2025-09-14 12:18:27,428 - INFO - Capturing beach snapshot...
+2025-09-14 12:18:27,474 - INFO - Getting stream URL for: https://www.youtube.com/watch?v=c3HxYfhhFu8
+2025-09-14 12:18:30,061 - INFO - Chosen format: 1912x1080 @ 30.0fps | vcodec=avc1.640028 acodec=mp4a.40.2 prot=m3u8_native ext=mp4
+2025-09-14 12:18:32,265 - INFO - Saved: youtube_snapshot_20250914_121832.jpg | Size: 1.6MB
+2025-09-14 12:18:32,265 - INFO - Successfully captured: data/snapshots/youtube_snapshot_20250914_121832.jpg
+2025-09-14 12:18:32,266 - INFO - Analyzing beach activity...
+2025-09-14 12:18:34,514 - INFO - Detected 21 people and 1 boats
+2025-09-14 12:18:34,525 - INFO - Saved annotated image to: data/snapshots/youtube_snapshot_20250914_121832_annotated.jpg
+2025-09-14 12:18:34,526 - INFO - Beach analysis complete: Beach is busy with 21 people and 1 boats visible.
+2025-09-14 12:18:35,751 - INFO - HTTP Request: POST https://api.openai.com/v1/chat/completions "HTTP/1.1 200 OK"
+2025-09-14 12:19:27,061 - INFO - HTTP Request: POST https://api.openai.com/v1/chat/completions "HTTP/1.1 200 OK"
+2025-09-14 12:19:27,088 - INFO - file_cache is only supported with oauth2client<4.0.0
+2025-09-14 12:19:27,771 - INFO - Loading YOLO model from: models_cache/beach_detection_100e30p20we1e-5lr10f.pt
+2025-09-14 12:19:27,902 - INFO - Capturing current beach snapshot...
+2025-09-14 12:19:27,902 - INFO - Capturing beach snapshot...
+2025-09-14 12:19:27,942 - INFO - Getting stream URL for: https://www.youtube.com/watch?v=c3HxYfhhFu8
+2025-09-14 12:19:30,586 - INFO - Chosen format: 1912x1080 @ 30.0fps | vcodec=avc1.640028 acodec=mp4a.40.2 prot=m3u8_native ext=mp4
+2025-09-14 12:19:32,647 - INFO - Saved: youtube_snapshot_20250914_121932.jpg | Size: 1.5MB
+2025-09-14 12:19:32,647 - INFO - Successfully captured: data/snapshots/youtube_snapshot_20250914_121932.jpg
+2025-09-14 12:19:32,647 - INFO - Analyzing beach activity...
+2025-09-14 12:19:35,386 - INFO - Detected 23 people and 1 boats
+2025-09-14 12:19:35,400 - INFO - Saved annotated image to: data/snapshots/youtube_snapshot_20250914_121932_annotated.jpg
+2025-09-14 12:19:35,401 - INFO - Beach analysis complete: Beach is busy with 23 people and 1 boats visible.
+2025-09-14 12:19:36,492 - INFO - HTTP Request: POST https://api.openai.com/v1/chat/completions "HTTP/1.1 200 OK"
+2025-09-14 12:19:53,304 - INFO - HTTP Request: POST https://api.openai.com/v1/chat/completions "HTTP/1.1 200 OK"
+2025-09-14 12:19:53,324 - INFO - file_cache is only supported with oauth2client<4.0.0
+2025-09-14 12:19:53,927 - INFO - Loading YOLO model from: models_cache/beach_detection_100e30p20we1e-5lr10f.pt
+2025-09-14 12:19:54,057 - INFO - Capturing current beach snapshot...
+2025-09-14 12:19:54,057 - INFO - Capturing beach snapshot...
+2025-09-14 12:19:54,057 - INFO - Getting stream URL for: https://www.youtube.com/watch?v=c3HxYfhhFu8
+2025-09-14 12:19:56,228 - INFO - Chosen format: 1912x1080 @ 30.0fps | vcodec=avc1.640028 acodec=mp4a.40.2 prot=m3u8_native ext=mp4
+2025-09-14 12:19:58,758 - INFO - Saved: youtube_snapshot_20250914_121958.jpg | Size: 1.6MB
+2025-09-14 12:19:58,758 - INFO - Successfully captured: data/snapshots/youtube_snapshot_20250914_121958.jpg
+2025-09-14 12:19:58,777 - INFO - Resized image saved to: data/snapshots/youtube_snapshot_20250914_121958_resized.jpg
+2025-09-14 12:20:00,965 - INFO - HTTP Request: POST https://api.openai.com/v1/chat/completions "HTTP/1.1 200 OK"
+2025-09-14 12:20:02,034 - INFO - HTTP Request: POST https://api.openai.com/v1/chat/completions "HTTP/1.1 200 OK"

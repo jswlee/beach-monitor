@@ -1,0 +1,71 @@
+# Beach Conditions Agent Configuration
+
+# Camera settings
+camera:
+  stream_url: "https://www.youtube.com/watch?v=c3HxYfhhFu8"  # Kaanapali Beach livestream
+  capture_interval: 30  # seconds between captures
+  max_retries: 3
+  timeout: 10
+
+# Model paths and settings
+models:
+  yolo_path: "models/yolo_people.pt"
+  roi_detector_path: "models/roi_detector.pt"
+  yolo_confidence: 0.5
+  yolo_iou: 0.45
+
+# Weights & Biases configuration
+wandb:
+  project: "beach-detection"
+  name: "yolo-beach-training"
+  enabled: true
+
+# ROI detection settings
+roi:
+  water_color_ranges:
+    - [[100, 50, 50], [130, 255, 255]]  # Blue water HSV ranges
+  beach_color_ranges:
+    - [[10, 50, 50], [30, 255, 255]]    # Sandy beach HSV ranges
+  min_area: 1000  # minimum area for ROI detection
+
+# Agent settings
+agent:
+  model: "gpt-3.5-turbo"
+  temperature: 0.7
+  max_tokens: 500
+  system_prompt: |
+    You are a beach conditions assistant for Kāʻanapali Beach in Maui, Hawaii. 
+    Analyze current beach conditions and provide helpful recommendations to visitors.
+    Be friendly, informative, and consider safety factors like crowding and weather.
+
+# API settings
+api:
+  host: "0.0.0.0"
+  port: 8000
+  reload: true
+
+# UI settings
+ui:
+  title: "Kāʻanapali Beach Conditions"
+  theme: "beach"
+  auto_refresh: 30  # seconds
+
+# Data paths
+paths:
+  snapshots: "data/snapshots"
+  training_samples: "data/training_samples"
+  roi_zones: "data/roi_zones.json"
+  models: "models"
+
+# Training output paths (for external volume storage)
+training_outputs:
+  base_path: "/media/volume/yolo-training-data"  # Jetstream2 volume path
+  models_dir: "models"
+  runs_dir: "runs" 
+  wandb_dir: "wandb"
+
+# Logging
+logging:
+  level: "INFO"
+  format: "%(asctime)s - %(name)s - %(levelname)s - %(message)s"
+  file: "beach_agent.log"
