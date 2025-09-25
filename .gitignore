@@ -2,3 +2,5 @@ venv
 __pycache__
 *.pt
 .env
+beach-monitor.code-workspace
+.DS_Store
