@@ -2,7 +2,7 @@
 
 # Camera settings
 camera:
-  stream_url: "https://www.youtube.com/watch?v=c3HxYfhhFu8"  # Kaanapali Beach livestream
+  stream_url: "LIVE 24/7 4K MAUI LIVE CAM WhalerCondo.net"  # YouTube search query for Kaanapali Beach livestream
   capture_interval: 30  # seconds between captures
   max_retries: 3
   timeout: 10

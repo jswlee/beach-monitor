@@ -1,5 +1,12 @@
 """
 Location classifier using Vision Language Models to determine if people are on beach or in water.
+
+ARCHITECTURE:
+1. Fine-tuned YOLO model detects people and returns bounding boxes
+2. This VLM classifier takes those bounding boxes and classifies each person as "beach" or "water"
+3. No additional object detection - only classification of existing detections
+
+This approach is cost-efficient and accurate since YOLO already found the people.
 """
 import os
 import base64

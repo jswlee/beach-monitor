@@ -66,7 +66,7 @@ def get_youtube_livestream_url(search_query: str) -> str | None:
 
 
 if __name__ == "__main__":
-    search_query = "4K MAUI LIVE CAM WhalerCondo.net"
+    search_query = "LIVE 24/7 4K MAUI LIVE CAM WhalerCondo.net"
     url = get_youtube_livestream_url(search_query)
     
     if url:

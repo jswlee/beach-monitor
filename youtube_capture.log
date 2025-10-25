@@ -459,3 +459,95 @@
 2025-09-14 12:19:58,777 - INFO - Resized image saved to: data/snapshots/youtube_snapshot_20250914_121958_resized.jpg
 2025-09-14 12:20:00,965 - INFO - HTTP Request: POST https://api.openai.com/v1/chat/completions "HTTP/1.1 200 OK"
 2025-09-14 12:20:02,034 - INFO - HTTP Request: POST https://api.openai.com/v1/chat/completions "HTTP/1.1 200 OK"
+2025-10-24 14:15:33,855 - INFO - HTTP Request: POST https://api.openai.com/v1/chat/completions "HTTP/1.1 200 OK"
+2025-10-24 14:15:33,868 - ERROR - Failed to load config: 'charmap' codec can't decode byte 0x81 in position 957: character maps to <undefined>
+2025-10-24 14:15:33,868 - ERROR - Error processing query: 'charmap' codec can't decode byte 0x81 in position 957: character maps to <undefined>
+2025-10-24 14:18:01,196 - INFO - HTTP Request: POST https://api.openai.com/v1/chat/completions "HTTP/1.1 500 Internal Server Error"
+2025-10-24 14:18:01,197 - INFO - Retrying request to /chat/completions in 0.426294 seconds
+2025-10-24 14:18:02,784 - INFO - HTTP Request: POST https://api.openai.com/v1/chat/completions "HTTP/1.1 200 OK"
+2025-10-24 14:18:02,804 - INFO - file_cache is only supported with oauth2client<4.0.0
+2025-10-24 14:18:03,532 - INFO - Model not found locally. Downloading from S3...
+2025-10-24 14:18:03,532 - INFO - Source: s3://beach-detection-model-yolo-finetuned/beach_detection_100e30p20we1e-5lr10f.pt
+2025-10-24 14:18:03,554 - INFO - Found credentials in environment variables.
+2025-10-24 14:18:12,072 - INFO - Model successfully downloaded to: models_cache\beach_detection_100e30p20we1e-5lr10f.pt
+2025-10-24 14:18:12,072 - INFO - Loading YOLO model from: models_cache\beach_detection_100e30p20we1e-5lr10f.pt
+2025-10-24 14:18:12,424 - INFO - Location classifier initialized
+2025-10-24 14:18:12,821 - INFO - Capturing current beach snapshot...
+2025-10-24 14:18:12,821 - INFO - Capturing beach snapshot...
+2025-10-24 14:18:12,888 - INFO - Getting stream URL for: None
+2025-10-24 14:18:12,938 - ERROR - Error getting stream URL: expected string or bytes-like object, got 'NoneType'
+2025-10-24 14:18:12,938 - ERROR - Failed to get stream URL (attempt 1/3)
+2025-10-24 14:18:12,938 - INFO - Retrying in 2.9 seconds...
+2025-10-24 14:18:15,834 - INFO - Getting stream URL for: None
+2025-10-24 14:18:15,867 - ERROR - Error getting stream URL: expected string or bytes-like object, got 'NoneType'
+2025-10-24 14:18:15,867 - ERROR - Failed to get stream URL (attempt 2/3)
+2025-10-24 14:18:15,868 - INFO - Retrying in 4.5 seconds...
+2025-10-24 14:18:20,330 - INFO - Getting stream URL for: None
+2025-10-24 14:18:20,360 - ERROR - Error getting stream URL: expected string or bytes-like object, got 'NoneType'
+2025-10-24 14:18:20,360 - ERROR - Failed to get stream URL (attempt 3/3)
+2025-10-24 14:18:20,360 - ERROR - Failed to capture snapshot after 3 attempts
+2025-10-24 14:18:20,360 - ERROR - Error capturing snapshot: Failed to capture snapshot
+2025-10-24 14:18:20,360 - ERROR - Error getting beach status: Failed to capture snapshot
+2025-10-24 14:18:21,287 - INFO - HTTP Request: POST https://api.openai.com/v1/chat/completions "HTTP/1.1 200 OK"
+2025-10-24 14:20:12,034 - INFO - HTTP Request: POST https://api.openai.com/v1/chat/completions "HTTP/1.1 200 OK"
+2025-10-24 14:20:12,056 - INFO - Loading YOLO model from: models_cache\beach_detection_100e30p20we1e-5lr10f.pt
+2025-10-24 14:20:12,383 - INFO - Location classifier initialized
+2025-10-24 14:20:12,767 - INFO - Capturing current beach snapshot...
+2025-10-24 14:20:12,768 - INFO - Capturing beach snapshot...
+2025-10-24 14:20:12,824 - INFO - Getting stream URL for: https://www.youtube.com/watch?v=c3HxYfhhFu8
+2025-10-24 14:20:15,614 - ERROR - Error getting stream URL: [0;31mERROR:[0m [youtube] c3HxYfhhFu8: This live stream recording is not available.
+2025-10-24 14:20:15,615 - ERROR - Failed to get stream URL (attempt 1/3)
+2025-10-24 14:20:15,615 - INFO - Retrying in 2.6 seconds...
+2025-10-24 14:20:18,257 - INFO - Getting stream URL for: https://www.youtube.com/watch?v=c3HxYfhhFu8
+2025-10-24 14:20:20,576 - ERROR - Error getting stream URL: [0;31mERROR:[0m [youtube] c3HxYfhhFu8: This live stream recording is not available.
+2025-10-24 14:20:20,577 - ERROR - Failed to get stream URL (attempt 2/3)
+2025-10-24 14:20:20,577 - INFO - Retrying in 4.3 seconds...
+2025-10-24 14:20:24,878 - INFO - Getting stream URL for: https://www.youtube.com/watch?v=c3HxYfhhFu8
+2025-10-24 14:20:26,703 - ERROR - Error getting stream URL: [0;31mERROR:[0m [youtube] c3HxYfhhFu8: This live stream recording is not available.
+2025-10-24 14:20:26,704 - ERROR - Failed to get stream URL (attempt 3/3)
+2025-10-24 14:20:26,704 - ERROR - Failed to capture snapshot after 3 attempts
+2025-10-24 14:20:26,705 - ERROR - Error capturing snapshot: Failed to capture snapshot
+2025-10-24 14:20:26,705 - ERROR - Error getting beach status: Failed to capture snapshot
+2025-10-24 14:20:27,801 - INFO - HTTP Request: POST https://api.openai.com/v1/chat/completions "HTTP/1.1 200 OK"
+2025-10-24 14:23:20,500 - INFO - HTTP Request: POST https://api.openai.com/v1/chat/completions "HTTP/1.1 200 OK"
+2025-10-24 14:23:20,521 - INFO - file_cache is only supported with oauth2client<4.0.0
+2025-10-24 14:23:21,306 - INFO - Loading YOLO model from: models_cache\beach_detection_100e30p20we1e-5lr10f.pt
+2025-10-24 14:23:21,633 - INFO - Location classifier initialized
+2025-10-24 14:23:22,012 - INFO - Capturing current beach snapshot...
+2025-10-24 14:23:22,012 - INFO - Capturing beach snapshot...
+2025-10-24 14:23:22,065 - INFO - Getting stream URL for: https://www.youtube.com/watch?v=ojLU8UsTiQQ
+2025-10-24 14:23:25,173 - INFO - Chosen format: 1912x1080 @ 30.0fps | vcodec=avc1.640028 acodec=mp4a.40.2 prot=m3u8_native ext=mp4
+2025-10-24 14:23:26,748 - INFO - Saved: youtube_snapshot_20251024_142326.jpg | Size: 1.6MB
+2025-10-24 14:23:26,748 - INFO - Successfully captured: data/snapshots\youtube_snapshot_20251024_142326.jpg
+2025-10-24 14:23:26,748 - INFO - Analyzing beach activity...
+2025-10-24 14:23:30,201 - INFO - Detected 16 people and 4 boats
+2025-10-24 14:23:30,221 - INFO - Saved annotated image to: data\snapshots\youtube_snapshot_20251024_142326_annotated.jpg
+2025-10-24 14:23:30,231 - INFO - Saved numbered annotated image to: data\snapshots\youtube_snapshot_20251024_142326_numbered.jpg
+2025-10-24 14:23:30,242 - INFO - Classifying 16 people using GPT-4V...
+2025-10-24 14:23:54,989 - INFO - HTTP Request: POST https://api.openai.com/v1/chat/completions "HTTP/1.1 200 OK"
+2025-10-24 14:23:54,990 - INFO - GPT-4V Response: ```json
+{
+  "classifications": [
+    {"box_id": 0, "location": "unclear"},
+    {"box_id": 1, "location": "beach"},
+    {"box_id": 2, "location": "water"},
+    {"box_id": 3, "location": "water"},
+    {"box_id": 4, "location": "water"},
+    {"box_id": 5, "location": "unclear"},
+    {"box_id": 6, "location": "unclear"},
+    {"box_id": 7, "location": "unclear"},
+    {"box_id": 8, "location": "beach"},
+    {"box_id": 9, "location": "unclear"},
+    {"box_id": 10, "location": "unclear"},
+    {"box_id": 11, "location": "unclear"},
+    {"box_id": 12, "location": "unclear"},
+    {"box_id": 13, "location": "unclear"},
+    {"box_id": 14, "location": "water"},
+    {"box_id": 15, "location": "unclear"}
+  ]
+}
+```
+2025-10-24 14:23:54,991 - INFO - Classification complete: 2 on beach, 4 in water, 10 unclear
+2025-10-24 14:23:54,991 - INFO - Location classification: 2 on beach, 4 in water, 10 unclear
+2025-10-24 14:23:54,992 - INFO - Beach analysis complete: Beach is busy with 16 people (2 on beach, 4 in water, 10 unclear) and 4 boats visible.
+2025-10-24 14:23:56,073 - INFO - HTTP Request: POST https://api.openai.com/v1/chat/completions "HTTP/1.1 200 OK"
