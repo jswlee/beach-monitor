@@ -551,3 +551,210 @@
 2025-10-24 14:23:54,991 - INFO - Location classification: 2 on beach, 4 in water, 10 unclear
 2025-10-24 14:23:54,992 - INFO - Beach analysis complete: Beach is busy with 16 people (2 on beach, 4 in water, 10 unclear) and 4 boats visible.
 2025-10-24 14:23:56,073 - INFO - HTTP Request: POST https://api.openai.com/v1/chat/completions "HTTP/1.1 200 OK"
+2025-10-24 14:42:53,347 - INFO - HTTP Request: POST https://api.openai.com/v1/chat/completions "HTTP/1.1 200 OK"
+2025-10-24 14:42:53,371 - INFO - file_cache is only supported with oauth2client<4.0.0
+2025-10-24 14:42:54,072 - INFO - Loading YOLO model from: models_cache\beach_detection_100e30p20we1e-5lr10f.pt
+2025-10-24 14:42:54,210 - INFO - Using device: cpu
+2025-10-24 14:42:54,210 - INFO - Region classifier initialized (color-based segmentation)
+2025-10-24 14:42:54,210 - INFO - Region classifier initialized
+2025-10-24 14:42:54,600 - INFO - Capturing current beach snapshot...
+2025-10-24 14:42:54,600 - INFO - Capturing beach snapshot...
+2025-10-24 14:42:54,655 - INFO - Getting stream URL for: https://www.youtube.com/watch?v=ojLU8UsTiQQ
+2025-10-24 14:42:57,600 - INFO - Chosen format: 1912x1080 @ 30.0fps | vcodec=avc1.640028 acodec=mp4a.40.2 prot=m3u8_native ext=mp4
+2025-10-24 14:42:59,247 - INFO - Saved: youtube_snapshot_20251024_144259.jpg | Size: 1.5MB
+2025-10-24 14:42:59,247 - INFO - Successfully captured: data/snapshots\youtube_snapshot_20251024_144259.jpg
+2025-10-24 14:42:59,247 - INFO - Analyzing beach activity...
+2025-10-24 14:43:02,748 - INFO - Detected 12 people and 3 boats
+2025-10-24 14:43:02,761 - INFO - Saved annotated image to: data\snapshots\youtube_snapshot_20251024_144259_annotated.jpg
+2025-10-24 14:43:02,770 - INFO - Saved annotated image to: data\snapshots\youtube_snapshot_20251024_144259_regions.jpg
+2025-10-24 14:43:02,771 - INFO - Classification complete: 3 on beach, 2 in water, 7 other
+2025-10-24 14:43:02,771 - INFO - Location classification: 3 on beach, 2 in water, 7 other
+2025-10-24 14:43:02,772 - INFO - Beach analysis complete: Beach is moderate with 12 people (3 on beach, 2 in water, 7 other) and 3 boats visible.
+2025-10-24 14:43:04,649 - INFO - HTTP Request: POST https://api.openai.com/v1/chat/completions "HTTP/1.1 200 OK"
+2025-10-24 14:52:35,895 - INFO - HTTP Request: POST https://api.openai.com/v1/chat/completions "HTTP/1.1 200 OK"
+2025-10-24 14:52:35,914 - INFO - file_cache is only supported with oauth2client<4.0.0
+2025-10-24 14:52:36,582 - INFO - Loading YOLO model from: models_cache\beach_detection_100e30p20we1e-5lr10f.pt
+2025-10-24 14:52:36,747 - INFO - Using device: cpu
+2025-10-24 14:52:36,747 - INFO - Region classifier initialized (color-based segmentation)
+2025-10-24 14:52:36,747 - INFO - Region classifier initialized
+2025-10-24 14:52:37,131 - INFO - Capturing new beach snapshot...
+2025-10-24 14:52:37,131 - INFO - Capturing beach snapshot...
+2025-10-24 14:52:37,187 - INFO - Getting stream URL for: https://www.youtube.com/watch?v=ojLU8UsTiQQ
+2025-10-24 14:52:40,651 - INFO - Chosen format: 1912x1080 @ 30.0fps | vcodec=avc1.640028 acodec=mp4a.40.2 prot=m3u8_native ext=mp4
+2025-10-24 14:52:41,933 - INFO - Saved: youtube_snapshot_20251024_145241.jpg | Size: 1.6MB
+2025-10-24 14:52:41,934 - INFO - Successfully captured: data/snapshots\youtube_snapshot_20251024_145241.jpg
+2025-10-24 14:52:41,934 - INFO - Snapshot captured: data/snapshots\youtube_snapshot_20251024_145241.jpg
+2025-10-24 14:52:41,934 - INFO - Analyzing snapshot: data/snapshots\youtube_snapshot_20251024_145241.jpg
+2025-10-24 14:52:45,302 - INFO - Detected 6 people and 3 boats
+2025-10-24 14:52:45,313 - INFO - Saved annotated image to: data\snapshots\youtube_snapshot_20251024_145241_annotated.jpg
+2025-10-24 14:52:45,322 - INFO - Saved annotated image to: data\snapshots\youtube_snapshot_20251024_145241_regions.jpg
+2025-10-24 14:52:45,323 - INFO - Classification complete: 1 on beach, 1 in water, 4 other
+2025-10-24 14:52:45,323 - INFO - Location classification: 1 on beach, 1 in water, 4 other
+2025-10-24 14:52:45,323 - INFO - Analysis complete: Beach is moderate with 6 people (1 on beach, 1 in water, 4 other) and 3 boats visible.
+2025-10-24 14:52:47,535 - INFO - HTTP Request: POST https://api.openai.com/v1/chat/completions "HTTP/1.1 200 OK"
+2025-10-24 14:55:02,987 - INFO - HTTP Request: POST https://api.openai.com/v1/chat/completions "HTTP/1.1 200 OK"
+2025-10-24 14:55:03,012 - INFO - file_cache is only supported with oauth2client<4.0.0
+2025-10-24 14:55:03,922 - INFO - Loading YOLO model from: models_cache\beach_detection_100e30p20we1e-5lr10f.pt
+2025-10-24 14:55:04,064 - INFO - Using device: cpu
+2025-10-24 14:55:04,064 - INFO - Region classifier initialized (color-based segmentation)
+2025-10-24 14:55:04,064 - INFO - Region classifier initialized
+2025-10-24 14:55:04,470 - INFO - Capturing new beach snapshot...
+2025-10-24 14:55:04,470 - INFO - Capturing beach snapshot...
+2025-10-24 14:55:04,522 - INFO - Getting stream URL for: https://www.youtube.com/watch?v=ojLU8UsTiQQ
+2025-10-24 14:55:07,852 - INFO - Chosen format: 1912x1080 @ 30.0fps | vcodec=avc1.640028 acodec=mp4a.40.2 prot=m3u8_native ext=mp4
+2025-10-24 14:55:09,260 - INFO - Saved: youtube_snapshot_20251024_145509.jpg | Size: 1.6MB
+2025-10-24 14:55:09,260 - INFO - Successfully captured: data/snapshots\youtube_snapshot_20251024_145509.jpg
+2025-10-24 14:55:09,260 - INFO - Snapshot captured: data/snapshots\youtube_snapshot_20251024_145509.jpg
+2025-10-24 14:55:09,260 - INFO - Analyzing snapshot: data/snapshots\youtube_snapshot_20251024_145509.jpg
+2025-10-24 14:55:12,677 - INFO - Detected 6 people and 3 boats
+2025-10-24 14:55:12,692 - INFO - Saved annotated image to: data\snapshots\youtube_snapshot_20251024_145509_annotated.jpg
+2025-10-24 14:55:12,701 - INFO - Saved annotated image to: data\snapshots\youtube_snapshot_20251024_145509_regions.jpg
+2025-10-24 14:55:12,702 - INFO - Classification complete: 2 on beach, 0 in water, 4 other
+2025-10-24 14:55:12,702 - INFO - Location classification: 2 on beach, 0 in water, 4 other
+2025-10-24 14:55:12,702 - INFO - Analysis complete: Beach is moderate with 6 people (2 on beach, 0 in water, 4 other) and 3 boats visible.
+2025-10-24 14:55:15,518 - INFO - HTTP Request: POST https://api.openai.com/v1/chat/completions "HTTP/1.1 200 OK"
+2025-10-24 14:55:32,578 - INFO - HTTP Request: POST https://api.openai.com/v1/chat/completions "HTTP/1.1 200 OK"
+2025-10-24 14:55:32,586 - INFO - Capturing new beach snapshot...
+2025-10-24 14:55:32,587 - INFO - Capturing beach snapshot...
+2025-10-24 14:55:32,587 - INFO - Getting stream URL for: https://www.youtube.com/watch?v=ojLU8UsTiQQ
+2025-10-24 14:55:35,253 - INFO - Chosen format: 1912x1080 @ 30.0fps | vcodec=avc1.640028 acodec=mp4a.40.2 prot=m3u8_native ext=mp4
+2025-10-24 14:55:36,657 - INFO - Saved: youtube_snapshot_20251024_145536.jpg | Size: 1.6MB
+2025-10-24 14:55:36,657 - INFO - Successfully captured: data/snapshots\youtube_snapshot_20251024_145536.jpg
+2025-10-24 14:55:36,657 - INFO - Snapshot captured: data/snapshots\youtube_snapshot_20251024_145536.jpg
+2025-10-24 14:55:37,617 - INFO - HTTP Request: POST https://api.openai.com/v1/chat/completions "HTTP/1.1 200 OK"
+2025-10-24 14:57:59,582 - INFO - HTTP Request: POST https://api.openai.com/v1/chat/completions "HTTP/1.1 200 OK"
+2025-10-24 14:57:59,603 - INFO - file_cache is only supported with oauth2client<4.0.0
+2025-10-24 14:58:00,308 - INFO - Loading YOLO model from: models_cache\beach_detection_100e30p20we1e-5lr10f.pt
+2025-10-24 14:58:00,449 - INFO - Using device: cpu
+2025-10-24 14:58:00,449 - INFO - Region classifier initialized (color-based segmentation)
+2025-10-24 14:58:00,449 - INFO - Region classifier initialized
+2025-10-24 14:58:00,828 - INFO - Capturing new beach snapshot...
+2025-10-24 14:58:00,829 - INFO - Capturing beach snapshot...
+2025-10-24 14:58:00,880 - INFO - Getting stream URL for: https://www.youtube.com/watch?v=ojLU8UsTiQQ
+2025-10-24 14:58:04,117 - INFO - Chosen format: 1912x1080 @ 30.0fps | vcodec=avc1.640028 acodec=mp4a.40.2 prot=m3u8_native ext=mp4
+2025-10-24 14:58:05,508 - INFO - Saved: youtube_snapshot_20251024_145805.jpg | Size: 1.6MB
+2025-10-24 14:58:05,508 - INFO - Successfully captured: data/snapshots\youtube_snapshot_20251024_145805.jpg
+2025-10-24 14:58:05,509 - INFO - Snapshot captured: data/snapshots\youtube_snapshot_20251024_145805.jpg
+2025-10-24 14:58:05,509 - INFO - Analyzing snapshot: data/snapshots\youtube_snapshot_20251024_145805.jpg
+2025-10-24 14:58:08,964 - INFO - Detected 6 people and 4 boats
+2025-10-24 14:58:08,978 - INFO - Saved annotated image to: data\snapshots\youtube_snapshot_20251024_145805_annotated.jpg
+2025-10-24 14:58:08,988 - INFO - Saved annotated image to: data\snapshots\youtube_snapshot_20251024_145805_regions.jpg
+2025-10-24 14:58:08,989 - INFO - Classification complete: 3 on beach, 1 in water, 2 other
+2025-10-24 14:58:08,989 - INFO - Location classification: 3 on beach, 1 in water, 2 other
+2025-10-24 14:58:08,990 - INFO - Analysis complete: Beach is moderate with 6 people (3 on beach, 1 in water, 2 other) and 4 boats visible.
+2025-10-24 14:58:10,526 - INFO - HTTP Request: POST https://api.openai.com/v1/chat/completions "HTTP/1.1 200 OK"
+2025-10-24 14:58:18,821 - INFO - HTTP Request: POST https://api.openai.com/v1/chat/completions "HTTP/1.1 200 OK"
+2025-10-24 14:58:18,834 - INFO - Capturing new beach snapshot...
+2025-10-24 14:58:18,835 - INFO - Capturing beach snapshot...
+2025-10-24 14:58:18,835 - INFO - Getting stream URL for: https://www.youtube.com/watch?v=ojLU8UsTiQQ
+2025-10-24 14:58:21,780 - INFO - Chosen format: 1912x1080 @ 30.0fps | vcodec=avc1.640028 acodec=mp4a.40.2 prot=m3u8_native ext=mp4
+2025-10-24 14:58:23,192 - INFO - Saved: youtube_snapshot_20251024_145823.jpg | Size: 1.6MB
+2025-10-24 14:58:23,193 - INFO - Successfully captured: data/snapshots\youtube_snapshot_20251024_145823.jpg
+2025-10-24 14:58:23,193 - INFO - Snapshot captured: data/snapshots\youtube_snapshot_20251024_145823.jpg
+2025-10-24 14:58:24,142 - INFO - HTTP Request: POST https://api.openai.com/v1/chat/completions "HTTP/1.1 200 OK"
+2025-10-24 15:01:54,498 - INFO - HTTP Request: POST https://api.openai.com/v1/chat/completions "HTTP/1.1 200 OK"
+2025-10-24 15:01:54,528 - INFO - file_cache is only supported with oauth2client<4.0.0
+2025-10-24 15:01:55,414 - INFO - Loading YOLO model from: models_cache\beach_detection_100e30p20we1e-5lr10f.pt
+2025-10-24 15:01:55,560 - INFO - Using device: cpu
+2025-10-24 15:01:55,561 - INFO - Region classifier initialized (color-based segmentation)
+2025-10-24 15:01:55,561 - INFO - Region classifier initialized
+2025-10-24 15:01:55,966 - INFO - Capturing new beach snapshot...
+2025-10-24 15:01:55,967 - INFO - Capturing beach snapshot...
+2025-10-24 15:01:56,020 - INFO - Getting stream URL for: https://www.youtube.com/watch?v=ojLU8UsTiQQ
+2025-10-24 15:01:59,511 - INFO - Chosen format: 1912x1080 @ 30.0fps | vcodec=avc1.640028 acodec=mp4a.40.2 prot=m3u8_native ext=mp4
+2025-10-24 15:02:00,795 - INFO - Saved: youtube_snapshot_20251024_150200.jpg | Size: 1.5MB
+2025-10-24 15:02:00,795 - INFO - Successfully captured: data/snapshots\youtube_snapshot_20251024_150200.jpg
+2025-10-24 15:02:00,795 - INFO - Snapshot captured: data/snapshots\youtube_snapshot_20251024_150200.jpg
+2025-10-24 15:02:00,795 - INFO - Analyzing snapshot: data/snapshots\youtube_snapshot_20251024_150200.jpg
+2025-10-24 15:02:04,410 - INFO - Detected 10 people and 3 boats
+2025-10-24 15:02:04,422 - INFO - Saved annotated image to: data\snapshots\youtube_snapshot_20251024_150200_annotated.jpg
+2025-10-24 15:02:04,432 - INFO - Saved annotated image to: data\snapshots\youtube_snapshot_20251024_150200_regions.jpg
+2025-10-24 15:02:04,433 - INFO - Classification complete: 3 on beach, 0 in water, 7 other
+2025-10-24 15:02:04,433 - INFO - Location classification: 3 on beach, 0 in water, 7 other
+2025-10-24 15:02:04,433 - INFO - Analysis complete: Beach is moderate with 10 people (3 on beach, 0 in water, 7 other) and 3 boats visible.
+2025-10-24 15:02:05,947 - INFO - HTTP Request: POST https://api.openai.com/v1/chat/completions "HTTP/1.1 200 OK"
+2025-10-24 15:02:48,803 - INFO - HTTP Request: POST https://api.openai.com/v1/chat/completions "HTTP/1.1 200 OK"
+2025-10-24 15:02:48,814 - INFO - Using cached snapshot from 48s ago: data/snapshots\youtube_snapshot_20251024_150200.jpg
+2025-10-24 15:02:48,814 - INFO - Analyzing snapshot: data/snapshots\youtube_snapshot_20251024_150200.jpg
+2025-10-24 15:02:52,006 - INFO - Detected 10 people and 3 boats
+2025-10-24 15:02:52,022 - INFO - Saved annotated image to: data\snapshots\youtube_snapshot_20251024_150200_annotated.jpg
+2025-10-24 15:02:52,033 - INFO - Saved annotated image to: data\snapshots\youtube_snapshot_20251024_150200_regions.jpg
+2025-10-24 15:02:52,034 - INFO - Classification complete: 3 on beach, 0 in water, 7 other
+2025-10-24 15:02:52,034 - INFO - Location classification: 3 on beach, 0 in water, 7 other
+2025-10-24 15:02:52,035 - INFO - Analysis complete: Beach is moderate with 10 people (3 on beach, 0 in water, 7 other) and 3 boats visible.
+2025-10-24 15:02:53,846 - INFO - HTTP Request: POST https://api.openai.com/v1/chat/completions "HTTP/1.1 200 OK"
+2025-10-24 15:03:12,825 - INFO - HTTP Request: POST https://api.openai.com/v1/chat/completions "HTTP/1.1 200 OK"
+2025-10-24 15:03:14,242 - INFO - HTTP Request: POST https://api.openai.com/v1/chat/completions "HTTP/1.1 200 OK"
+2025-10-24 15:04:10,836 - INFO - HTTP Request: POST https://api.openai.com/v1/chat/completions "HTTP/1.1 200 OK"
+2025-10-24 15:04:10,848 - INFO - Capturing new beach snapshot...
+2025-10-24 15:04:10,849 - INFO - Capturing beach snapshot...
+2025-10-24 15:04:10,849 - INFO - Getting stream URL for: https://www.youtube.com/watch?v=ojLU8UsTiQQ
+2025-10-24 15:04:13,660 - INFO - Chosen format: 1912x1080 @ 30.0fps | vcodec=avc1.640028 acodec=mp4a.40.2 prot=m3u8_native ext=mp4
+2025-10-24 15:04:15,022 - INFO - Saved: youtube_snapshot_20251024_150415.jpg | Size: 1.5MB
+2025-10-24 15:04:15,022 - INFO - Successfully captured: data/snapshots\youtube_snapshot_20251024_150415.jpg
+2025-10-24 15:04:15,022 - INFO - Snapshot captured: data/snapshots\youtube_snapshot_20251024_150415.jpg
+2025-10-24 15:04:16,316 - INFO - HTTP Request: POST https://api.openai.com/v1/chat/completions "HTTP/1.1 200 OK"
+2025-10-24 15:06:53,849 - INFO - HTTP Request: POST https://api.openai.com/v1/chat/completions "HTTP/1.1 200 OK"
+2025-10-24 15:06:53,874 - INFO - file_cache is only supported with oauth2client<4.0.0
+2025-10-24 15:06:54,636 - INFO - Loading YOLO model from: models_cache\beach_detection_100e30p20we1e-5lr10f.pt
+2025-10-24 15:06:54,783 - INFO - Using device: cpu
+2025-10-24 15:06:54,783 - INFO - Region classifier initialized (color-based segmentation)
+2025-10-24 15:06:54,783 - INFO - Region classifier initialized
+2025-10-24 15:06:55,196 - INFO - Capturing new beach snapshot...
+2025-10-24 15:06:55,196 - INFO - Capturing beach snapshot...
+2025-10-24 15:06:55,250 - INFO - Getting stream URL for: https://www.youtube.com/watch?v=ojLU8UsTiQQ
+2025-10-24 15:06:58,507 - INFO - Chosen format: 1912x1080 @ 30.0fps | vcodec=avc1.640028 acodec=mp4a.40.2 prot=m3u8_native ext=mp4
+2025-10-24 15:07:00,287 - INFO - Saved: youtube_snapshot_20251024_150700.jpg | Size: 1.6MB
+2025-10-24 15:07:00,287 - INFO - Successfully captured: data/snapshots\youtube_snapshot_20251024_150700.jpg
+2025-10-24 15:07:00,287 - INFO - Snapshot captured: data/snapshots\youtube_snapshot_20251024_150700.jpg
+2025-10-24 15:07:00,287 - INFO - Analyzing snapshot: data/snapshots\youtube_snapshot_20251024_150700.jpg
+2025-10-24 15:07:03,696 - INFO - Detected 12 people and 1 boats
+2025-10-24 15:07:03,712 - INFO - Saved annotated image to: data\snapshots\youtube_snapshot_20251024_150700_annotated.jpg
+2025-10-24 15:07:03,722 - INFO - Saved annotated image to: data\snapshots\youtube_snapshot_20251024_150700_regions.jpg
+2025-10-24 15:07:03,723 - INFO - Classification complete: 2 on beach, 0 in water, 10 other
+2025-10-24 15:07:03,724 - INFO - Location classification: 2 on beach, 0 in water, 10 other
+2025-10-24 15:07:03,724 - INFO - Analysis complete: Beach is moderate with 12 people (2 on beach, 0 in water, 10 other) and 1 boats visible.
+2025-10-24 15:07:05,407 - INFO - HTTP Request: POST https://api.openai.com/v1/chat/completions "HTTP/1.1 200 OK"
+2025-10-24 15:07:18,614 - INFO - HTTP Request: POST https://api.openai.com/v1/chat/completions "HTTP/1.1 200 OK"
+2025-10-24 15:07:19,713 - INFO - HTTP Request: POST https://api.openai.com/v1/chat/completions "HTTP/1.1 200 OK"
+2025-10-24 15:08:23,929 - INFO - HTTP Request: POST https://api.openai.com/v1/chat/completions "HTTP/1.1 200 OK"
+2025-10-24 15:08:23,938 - INFO - Capturing new beach snapshot...
+2025-10-24 15:08:23,939 - INFO - Capturing beach snapshot...
+2025-10-24 15:08:23,939 - INFO - Getting stream URL for: https://www.youtube.com/watch?v=ojLU8UsTiQQ
+2025-10-24 15:08:26,780 - INFO - Chosen format: 1912x1080 @ 30.0fps | vcodec=avc1.640028 acodec=mp4a.40.2 prot=m3u8_native ext=mp4
+2025-10-24 15:08:28,162 - INFO - Saved: youtube_snapshot_20251024_150828.jpg | Size: 1.6MB
+2025-10-24 15:08:28,162 - INFO - Successfully captured: data/snapshots\youtube_snapshot_20251024_150828.jpg
+2025-10-24 15:08:28,162 - INFO - Snapshot captured: data/snapshots\youtube_snapshot_20251024_150828.jpg
+2025-10-24 15:08:29,744 - INFO - HTTP Request: POST https://api.openai.com/v1/chat/completions "HTTP/1.1 200 OK"
+2025-10-24 15:12:46,537 - INFO - HTTP Request: POST https://api.openai.com/v1/chat/completions "HTTP/1.1 200 OK"
+2025-10-24 15:12:46,560 - INFO - file_cache is only supported with oauth2client<4.0.0
+2025-10-24 15:12:47,403 - INFO - Loading YOLO model from: models_cache\beach_detection_100e30p20we1e-5lr10f.pt
+2025-10-24 15:12:47,541 - INFO - Using device: cpu
+2025-10-24 15:12:47,542 - INFO - Region classifier initialized (color-based segmentation)
+2025-10-24 15:12:47,542 - INFO - Region classifier initialized
+2025-10-24 15:12:47,922 - INFO - Capturing new beach snapshot...
+2025-10-24 15:12:47,922 - INFO - Capturing beach snapshot...
+2025-10-24 15:12:47,974 - INFO - Getting stream URL for: https://www.youtube.com/watch?v=ojLU8UsTiQQ
+2025-10-24 15:12:51,291 - INFO - Chosen format: 1912x1080 @ 30.0fps | vcodec=avc1.640028 acodec=mp4a.40.2 prot=m3u8_native ext=mp4
+2025-10-24 15:12:53,723 - INFO - Saved: youtube_snapshot_20251024_151253.jpg | Size: 1.5MB
+2025-10-24 15:12:53,723 - INFO - Successfully captured: data/snapshots\youtube_snapshot_20251024_151253.jpg
+2025-10-24 15:12:53,723 - INFO - Snapshot captured: data/snapshots\youtube_snapshot_20251024_151253.jpg
+2025-10-24 15:12:53,723 - INFO - Analyzing snapshot: data/snapshots\youtube_snapshot_20251024_151253.jpg
+2025-10-24 15:12:57,171 - INFO - Detected 6 people and 1 boats
+2025-10-24 15:12:57,183 - INFO - Saved annotated image to: data\snapshots\youtube_snapshot_20251024_151253_annotated.jpg
+2025-10-24 15:12:57,191 - INFO - Saved annotated image to: data\snapshots\youtube_snapshot_20251024_151253_regions.jpg
+2025-10-24 15:12:57,192 - INFO - Classification complete: 1 on beach, 0 in water, 5 other
+2025-10-24 15:12:57,192 - INFO - Location classification: 1 on beach, 0 in water, 5 other
+2025-10-24 15:12:57,192 - INFO - Analysis complete: Beach is moderate with 6 people (1 on beach, 0 in water, 5 other) and 1 boats visible.
+2025-10-24 15:12:58,482 - INFO - HTTP Request: POST https://api.openai.com/v1/chat/completions "HTTP/1.1 200 OK"
+2025-10-24 15:13:25,107 - INFO - HTTP Request: POST https://api.openai.com/v1/chat/completions "HTTP/1.1 200 OK"
+2025-10-24 15:13:26,040 - INFO - HTTP Request: POST https://api.openai.com/v1/chat/completions "HTTP/1.1 200 OK"
+2025-10-24 15:13:34,383 - INFO - HTTP Request: POST https://api.openai.com/v1/chat/completions "HTTP/1.1 200 OK"
+2025-10-24 15:13:34,397 - INFO - Capturing new beach snapshot...
+2025-10-24 15:13:34,398 - INFO - Capturing beach snapshot...
+2025-10-24 15:13:34,398 - INFO - Getting stream URL for: https://www.youtube.com/watch?v=ojLU8UsTiQQ
+2025-10-24 15:13:37,152 - INFO - Chosen format: 1912x1080 @ 30.0fps | vcodec=avc1.640028 acodec=mp4a.40.2 prot=m3u8_native ext=mp4
+2025-10-24 15:13:38,449 - INFO - Saved: youtube_snapshot_20251024_151338.jpg | Size: 1.6MB
+2025-10-24 15:13:38,449 - INFO - Successfully captured: data/snapshots\youtube_snapshot_20251024_151338.jpg
+2025-10-24 15:13:38,450 - INFO - Snapshot captured: data/snapshots\youtube_snapshot_20251024_151338.jpg
+2025-10-24 15:13:39,374 - INFO - HTTP Request: POST https://api.openai.com/v1/chat/completions "HTTP/1.1 200 OK"

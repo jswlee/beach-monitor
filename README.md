@@ -11,7 +11,7 @@ This project uses a fine-tuned YOLOv8 model to detect people and boats, providin
 - **Conversational AI Agent**: Built with LangGraph, the agent can understand natural language queries and provide informative responses.
 - **Real-time Analysis**: Captures snapshots from a live YouTube stream to provide up-to-the-minute beach conditions.
 - **Object Detection**: Uses a fine-tuned YOLOv8 model to accurately detect and count people and boats.
-- **Beach vs Water Classification**: NEW! Uses GPT-4V to separate people counts into beach (on sand) vs water (swimming/wading).
+- **Beach vs Water Classification**: NEW! Uses color-based region classification to separate people counts into beach (on sand), water (swimming/wading), and other (boats, etc.).
 - **Interactive UI**: A simple and clean chat interface built with Streamlit, allowing users to ask questions and receive real-time analysis.
 - **Annotated Images**: The agent can provide an annotated image with bounding boxes showing the detected objects, offering a visual confirmation of the analysis.
 
@@ -22,7 +22,7 @@ This project uses a fine-tuned YOLOv8 model to detect people and boats, providin
 The project is designed with a modular architecture that separates the different components of the system:
 
 ```
-User (Streamlit UI) -> LangGraph Agent -> Beach Monitoring Tool -> Snapshot Capture -> YOLO Detection -> Location Classifier (GPT-4V)
+User (Streamlit UI) -> LangGraph Agent -> Beach Monitoring Tool -> Snapshot Capture -> YOLO Detection -> Region Classifier (Color-based)
 ```
 
 - **Streamlit UI (`ui/chat.py`)**: The user-facing chat interface that communicates with the agent.
@@ -30,7 +30,7 @@ User (Streamlit UI) -> LangGraph Agent -> Beach Monitoring Tool -> Snapshot Capt
 - **Beach Monitoring Tool (`agent/tools.py`)**: A tool that integrates the computer vision components, providing a simple interface for the agent to get beach status.
 - **Snapshot Capture (`beach_cv_tool/capture.py`)**: Captures snapshots from the live YouTube stream.
 - **YOLO Detection (`beach_cv_tool/detection.py`)**: Runs the fine-tuned YOLOv8 model on the captured snapshots to detect and count people and boats.
-- **Location Classifier (`beach_cv_tool/location_classifier.py`)**: Uses GPT-4V to classify each detected person as being on the beach or in the water.
+- **Region Classifier (`beach_cv_tool/region_classifier.py`)**: Uses color-based segmentation to classify each detected person as being on the beach, in the water, or other (boats, etc.).
 
 ---
 
@@ -132,3 +132,4 @@ The project's behavior can be configured through the `config.yaml` file. This in
 
 - **[QUICKSTART.md](QUICKSTART.md)**: Quick start guide for local development and testing
 - **[DEPLOYMENT.md](DEPLOYMENT.md)**: Complete deployment guide for Streamlit Cloud, Hugging Face, and Railway
+- **[SAM_IMPLEMENTATION.md](SAM_IMPLEMENTATION.md)**: Details on the region-based classification approach

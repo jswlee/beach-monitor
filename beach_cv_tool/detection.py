@@ -11,7 +11,7 @@ from ultralytics import YOLO
 import boto3
 from botocore.exceptions import NoCredentialsError
 from dotenv import load_dotenv
-from beach_cv_tool.location_classifier import LocationClassifier
+from beach_cv_tool.region_classifier import RegionClassifier
 
 # Load environment variables from a .env file
 project_root = Path(__file__).parent.parent
@@ -44,15 +44,15 @@ class BeachDetector:
         self.model = None
         self._load_model()
         
-        # Initialize location classifier if enabled
+        # Initialize region classifier if enabled
         self.enable_location_classification = enable_location_classification
-        self.location_classifier = None
+        self.region_classifier = None
         if enable_location_classification:
             try:
-                self.location_classifier = LocationClassifier()
-                logger.info("Location classifier initialized")
+                self.region_classifier = RegionClassifier()
+                logger.info("Region classifier initialized")
             except Exception as e:
-                logger.warning(f"Failed to initialize location classifier: {e}. Will continue without location classification.")
+                logger.warning(f"Failed to initialize region classifier: {e}. Will continue without location classification.")
                 self.enable_location_classification = False
         
     def _load_model(self):
@@ -134,12 +134,12 @@ class BeachDetector:
             # Initialize location counts
             beach_count = 0
             water_count = 0
-            unclear_count = 0
+            other_count = 0
             location_classifications = None
             
             # Perform location classification if enabled and there are people
             should_classify = (classify_locations if classify_locations is not None else self.enable_location_classification)
-            if should_classify and self.location_classifier and people_count > 0:
+            if should_classify and self.region_classifier and people_count > 0:
                 try:
                     # Extract person bounding boxes from YOLO results
                     result = raw_results[0]
@@ -152,8 +152,8 @@ class BeachDetector:
                                 person_boxes.append({'xyxy': box.tolist()})
                     
                     # Classify locations
-                    numbered_annotated_path = source_path.parent / f"{source_path.stem}_numbered.jpg"
-                    location_result = self.location_classifier.classify_locations(
+                    numbered_annotated_path = source_path.parent / f"{source_path.stem}_regions.jpg"
+                    location_result = self.region_classifier.classify_locations(
                         image,
                         person_boxes,
                         save_annotated=True,
@@ -162,10 +162,10 @@ class BeachDetector:
                     
                     beach_count = location_result['beach_count']
                     water_count = location_result['water_count']
-                    unclear_count = location_result['unclear_count']
+                    other_count = location_result['other_count']
                     location_classifications = location_result['classifications']
                     
-                    logger.info(f"Location classification: {beach_count} on beach, {water_count} in water, {unclear_count} unclear")
+                    logger.info(f"Location classification: {beach_count} on beach, {water_count} in water, {other_count} other")
                     
                 except Exception as e:
                     logger.error(f"Error during location classification: {e}. Continuing without location data.")
@@ -183,8 +183,8 @@ class BeachDetector:
             # Build summary
             if beach_count > 0 or water_count > 0:
                 summary = f"Beach is {activity_level} with {people_count} people ({beach_count} on beach, {water_count} in water"
-                if unclear_count > 0:
-                    summary += f", {unclear_count} unclear"
+                if other_count > 0:
+                    summary += f", {other_count} other"
                 summary += f") and {boat_count} boats visible."
             else:
                 summary = f"Beach is {activity_level} with {people_count} people and {boat_count} boats visible."
@@ -196,7 +196,7 @@ class BeachDetector:
                 'boat_count': boat_count,
                 'beach_count': beach_count,
                 'water_count': water_count,
-                'unclear_count': unclear_count,
+                'other_count': other_count,
                 'activity_level': activity_level,
                 'summary': summary
             }
