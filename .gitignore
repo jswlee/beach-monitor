@@ -4,3 +4,17 @@ __pycache__
 .env
 beach-monitor.code-workspace
 .DS_Store
+
+# Streamlit
+.streamlit/secrets.toml
+
+# Model cache
+models_cache/
+
+# Images and logs
+images/
+*.log
+
+# Test outputs
+test_annotated.jpg
+dummy_beach_image.jpg
