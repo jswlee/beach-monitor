@@ -204,6 +204,7 @@ class BeachDetector:
             # Add location classifications if available
             if location_classifications:
                 analysis['location_classifications'] = location_classifications
+                analysis['regions_image_path'] = str(numbered_annotated_path)
             
             return analysis
             

@@ -8,7 +8,14 @@ from langgraph.prebuilt import ToolExecutor, ToolInvocation
 from langchain_core.messages import BaseMessage, HumanMessage, AIMessage, ToolMessage
 from langchain_core.tools import tool
 from langchain_openai import ChatOpenAI
-from .tools import get_original_image_tool, capture_snapshot_tool, analyze_beach_tool, get_weather_tool, beach_status_tool
+from .tools import (
+    get_original_image_tool,
+    capture_snapshot_tool,
+    analyze_beach_tool,
+    get_weather_tool,
+    get_annotated_image_tool,
+    get_regions_image_tool,
+)
 
 logger = logging.getLogger(__name__)
 
@@ -23,7 +30,14 @@ class BeachMonitorAgent:
     """Beach monitoring conversational agent"""
     
     def __init__(self, openai_api_key: str = None):
-        self.tools = [get_original_image_tool, capture_snapshot_tool, analyze_beach_tool, get_weather_tool, beach_status_tool]
+        self.tools = [
+            get_original_image_tool,
+            capture_snapshot_tool,
+            analyze_beach_tool,
+            get_weather_tool,
+            get_annotated_image_tool,
+            get_regions_image_tool,
+        ]
         self.tool_executor = ToolExecutor(self.tools)
         
         # Initialize LLM
@@ -75,18 +89,21 @@ class BeachMonitorAgent:
         2. capture_snapshot_tool - Captures a FRESH NEW snapshot from livestream (slower)
         3. analyze_beach_tool - Analyzes beach for people/boat counts
         4. get_weather_tool - Gets weather conditions from the beach camera
+        5. get_annotated_image_tool - Shows the MOST RECENT annotated image (no new capture, fast)
+        6. get_regions_image_tool - Shows the MOST RECENT segmented image to show if people are on beach or in water
         
         Workflow:
         - If user asks "show me the original image" or "raw image" AFTER analysis → use get_original_image_tool (fast, no YouTube API call)
         - If user asks "show me the beach" or "what does it look like now" → use capture_snapshot_tool (captures fresh)
         - If user asks "how busy is it", "how many people", "beach vs water" → use analyze_beach_tool
-        - If user asks about weather → use get_weather_tool
+        - If user explicitly asks about weather → use get_weather_tool; otherwise do not include weather commentary
+        - If user asks "show me the annotated image" → use get_annotated_image_tool (fast, no YouTube API call)
+        - If user asks "show me the segmented image" → use get_regions_image_tool (fast, no YouTube API call)
         
-        IMPORTANT: 
-        - "original image" = get_original_image_tool (shows recent snapshot, efficient)
-        - "show me the beach now" = capture_snapshot_tool (captures new, slower)
-        
-        After providing analysis, ask if they'd like to see the annotated image showing detections.
+        CRITICAL RULES:
+        - When user asks to "show" an image, ONLY call the image tool. Do NOT add any text response.
+        - For count questions, provide a concise text answer with numbers.
+        - The UI will display images automatically from tool outputs. Never mention file paths or links in your response.
         """)
         
         if not any(isinstance(msg, HumanMessage) and "beach monitoring assistant" in msg.content for msg in messages):
@@ -106,7 +123,11 @@ class BeachMonitorAgent:
         
         annotated_image_path = None
         snapshot_path = None
+        regions_image_path = None
+        image_caption = None
+        counts_text = None
         
+        called_tools = []
         for tool_call in tool_calls:
             tool_result = self.tool_executor.invoke(
                 ToolInvocation(
@@ -115,13 +136,39 @@ class BeachMonitorAgent:
                 )
             )
 
-            # Extract the annotated image path from the tool result
-            if "Annotated image is available at:" in str(tool_result):
-                annotated_image_path = str(tool_result).split("Annotated image is available at: ")[-1].strip()
+            result_text = str(tool_result)
+            tool_name = tool_call["name"]
+            called_tools.append(tool_name)
             
-            # Extract the snapshot path from either capture_snapshot_tool or get_original_image_tool
-            if "Image saved at:" in str(tool_result):
-                snapshot_path = str(tool_result).split("Image saved at:")[-1].strip()
+            logger.info(f"Tool {tool_name} returned: {result_text[:200]}")
+            
+            # Extract paths and set captions based on tool name and output
+            if tool_name == "get_annotated_image_tool" and "Annotated image is available at:" in result_text:
+                path_part = result_text.split("Annotated image is available at: ")[-1]
+                annotated_image_path = path_part.split("\n")[0].strip()
+                snapshot_path = annotated_image_path
+                image_caption = "Annotated Beach Snapshot"
+                
+            elif tool_name == "get_regions_image_tool" and "Regions image is available at:" in result_text:
+                path_part = result_text.split("Regions image is available at: ")[-1]
+                regions_image_path = path_part.split("\n")[0].strip()
+                snapshot_path = regions_image_path
+                image_caption = "Segmented Image (Beach vs Water)"
+                
+            elif tool_name == "get_original_image_tool" and "Image saved at:" in result_text:
+                path_part = result_text.split("Image saved at:")[-1]
+                snapshot_path = path_part.split("\n")[0].strip()
+                image_caption = "Original Beach Snapshot"
+                
+            elif tool_name == "capture_snapshot_tool" and "Image saved at:" in result_text:
+                path_part = result_text.split("Image saved at:")[-1]
+                snapshot_path = path_part.split("\n")[0].strip()
+                image_caption = "Fresh Beach Snapshot"
+
+            # Extract counts text if present
+            if "\nCounts:" in result_text:
+                counts_text = result_text.split("\nCounts:")[-1].strip()
+                counts_text = "Counts: " + counts_text
 
             tool_message = ToolMessage(
                 content=str(tool_result),
@@ -129,10 +176,23 @@ class BeachMonitorAgent:
             )
             tool_messages.append(tool_message)
 
+        # Suppress image display if no explicit image tool was called
+        explicit_image_tools = {
+            "capture_snapshot_tool",
+            "get_original_image_tool",
+            "get_annotated_image_tool",
+            "get_regions_image_tool",
+        }
+        if not any(t in explicit_image_tools for t in called_tools):
+            snapshot_path = None
+            image_caption = None
+
         return {
             "messages": messages + tool_messages,
             "annotated_image_path": annotated_image_path,
-            "snapshot_path": snapshot_path
+            "snapshot_path": snapshot_path,
+            "image_caption": image_caption,
+            "counts_text": counts_text
         }
     
     def _should_continue(self, state: AgentState) -> str:

@@ -37,6 +37,10 @@ agent:
     You are a beach conditions assistant for Kāʻanapali Beach in Maui, Hawaii. 
     Analyze current beach conditions and provide helpful recommendations to visitors.
     Be friendly, informative, and consider safety factors like crowding and weather.
+    You can also provide links/paths to the latest images:
+    - Original snapshot (raw frame)
+    - Annotated detection image (bounding boxes)
+    - Regions image (people classified as on beach vs in water)
 
 # API settings
 api:

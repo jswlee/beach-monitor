@@ -1,52 +1,179 @@
 """
-Region classifier using Segment Anything Model (SAM) to determine if people are on beach or in water.
+Region classifier using water-beach-classifier segmentation model to determine if people are on beach or in water.
 
 ARCHITECTURE:
 1. Fine-tuned YOLO model detects people and returns bounding boxes
-2. SAM segments the entire image into regions
-3. Classify each region as water/beach/other based on color and position
-4. Map each person's bounding box center to the corresponding region
+2. Apply polygon mask to image (mask.py)
+3. Run segmentation model to classify pixels as water/beach/background
+4. Map each person's bounding box center to the corresponding segmented region
 
-This approach is fast, free, and more accurate than VLM for beach scenes.
+This approach uses a trained SegFormer model for accurate beach/water segmentation.
 """
 import cv2
 import numpy as np
 import logging
 from typing import Dict, List, Any, Tuple
 from pathlib import Path
+import os
 import torch
+from transformers import AutoModelForSemanticSegmentation
+import torch.nn.functional as F
+import boto3
+from botocore.exceptions import NoCredentialsError
+from dotenv import load_dotenv
 
 # Configure logging
 logging.basicConfig(level=logging.INFO, format='%(asctime)s - %(levelname)s - %(message)s')
 logger = logging.getLogger(__name__)
 
+# Load environment variables from project root .env
+project_root = Path(__file__).parent.parent
+dotenv_path = project_root / '.env'
+try:
+    load_dotenv(dotenv_path=dotenv_path)
+except Exception:
+    pass
+
 
 class RegionClassifier:
-    """Classifies person locations (beach vs water) using SAM segmentation + color analysis."""
+    """Classifies person locations (beach vs water) using trained segmentation model."""
     
-    def __init__(self, sam_checkpoint: str = None, model_type: str = "vit_h"):
+    def __init__(self, model_path: str = None):
         """
-        Initialize the region classifier with SAM.
+        Initialize the region classifier with water-beach segmentation model.
         
         Args:
-            sam_checkpoint: Path to SAM checkpoint. If None, will download automatically.
-            model_type: SAM model type ('vit_h', 'vit_l', or 'vit_b')
+            model_path: Path to trained model. If None, uses default path.
         """
         self.device = "cuda" if torch.cuda.is_available() else "cpu"
         logger.info(f"Using device: {self.device}")
         
-        # We'll use a simpler approach without SAM for now - just color-based segmentation
-        # SAM is heavy and may not be necessary for beach scenes
-        self.use_sam = False
+        # Strategy:
+        # 1) If model_path is provided, try to load directly from there
+        # 2) Else, download from S3 (or use cached) into ./models_cache/segmentation/waterline and load
+
+        if model_path is not None:
+            source_dir = Path(model_path)
+            logger.info(f"Attempting to load segmentation model from provided path: {source_dir}")
+            self._load_model_from_dir(source_dir)
+        else:
+            # S3 locations (with env overrides)
+            seg_bucket = os.getenv("SEG_S3_BUCKET_NAME", "beach-detection-model-yolo-finetuned")
+            seg_config_key = os.getenv("SEG_S3_CONFIG_KEY", "waterline-model-config.json")
+            seg_weights_key = os.getenv("SEG_S3_WEIGHTS_KEY", "waterline-model.safetensors")
+            cache_dir = Path(os.getenv("SEG_LOCAL_CACHE_DIR", "./models_cache/segmentation/waterline")).resolve()
+            cache_dir.mkdir(parents=True, exist_ok=True)
+
+            local_config = cache_dir / "config.json"
+            local_weights = cache_dir / "model.safetensors"
+
+            # Download if missing
+            if not local_config.exists() or not local_weights.exists():
+                logger.info(
+                    f"Downloading segmentation model from s3://{seg_bucket}/{seg_config_key} and s3://{seg_bucket}/{seg_weights_key}"
+                )
+                try:
+                    s3 = boto3.client('s3')
+                    s3.download_file(seg_bucket, seg_config_key, str(local_config))
+                    s3.download_file(seg_bucket, seg_weights_key, str(local_weights))
+                    logger.info(f"Downloaded segmentation model to: {cache_dir}")
+                except NoCredentialsError:
+                    logger.error("AWS credentials not found for segmentation model download. Set AWS_ACCESS_KEY_ID and AWS_SECRET_ACCESS_KEY in .env")
+                    raise
+                except Exception as e:
+                    logger.error(f"Failed to download segmentation model: {e}")
+                    raise
+
+            # Load from cache dir
+            self._load_model_from_dir(cache_dir)
         
-        logger.info("Region classifier initialized (color-based segmentation)")
-    
-    def _classify_region_by_color(self, image: np.ndarray, point: Tuple[int, int]) -> str:
+        # Polygon mask for the beach area (from mask.py)
+        self.mask_polygon = np.array([[2, 693], [1655, 380], [1861, 485], [1850, 617], [1819, 614], [1790, 628], [1794, 644], [1782, 655], [1757, 673], [1753, 681], [1783, 693], [1642, 749], [1621, 723], [1444, 777], [1206, 823], [1169, 820], [904, 868], [804, 907], [745, 937], [676, 943], [621, 960], [595, 954], [580, 967], [551, 968], [472, 972], [249, 1012], [214, 1021], [159, 1023], [49, 1050], [4, 1073]])
+        
+        # Class mapping from model config
+        self.id2label = {0: 'background', 1: 'base-background-layer-segmentation', 2: 'beach', 3: 'water'}
+        
+        logger.info("Region classifier initialized with segmentation model")
+
+    def _load_model_from_dir(self, model_dir: Path) -> None:
         """
-        Classify a point in the image as water, beach, or other based on color.
+        Load the HuggingFace segmentation model from a local directory.
+        Expects config.json and model.safetensors to be present.
+        """
+        try:
+            self.model = AutoModelForSemanticSegmentation.from_pretrained(str(model_dir))
+            self.model = self.model.to(self.device)
+            self.model.eval()
+            logger.info(f"Loaded segmentation model from {model_dir}")
+        except Exception as e:
+            logger.error(f"Failed to load model from {model_dir}: {e}")
+            raise
+    
+    def _apply_mask(self, image: np.ndarray) -> np.ndarray:
+        """
+        Apply polygon mask to image (keeps only beach area).
         
         Args:
             image: BGR image
+            
+        Returns:
+            Masked image
+        """
+        mask = np.zeros(image.shape[:2], dtype=np.uint8)
+        cv2.fillPoly(mask, [self.mask_polygon], 255)
+        masked_image = cv2.bitwise_and(image, image, mask=mask)
+        return masked_image
+    
+    def _segment_image(self, image: np.ndarray) -> np.ndarray:
+        """
+        Run segmentation model on image.
+        
+        Args:
+            image: BGR image (masked)
+            
+        Returns:
+            Segmentation map (H x W) with class IDs
+        """
+        # Convert BGR to RGB
+        image_rgb = cv2.cvtColor(image, cv2.COLOR_BGR2RGB)
+        
+        # Resize to model input size (512x512 based on test_model.py)
+        h, w = image_rgb.shape[:2]
+        image_resized = cv2.resize(image_rgb, (512, 512))
+        
+        # Normalize and convert to tensor
+        image_tensor = torch.from_numpy(image_resized).permute(2, 0, 1).float() / 255.0
+        mean = torch.tensor([0.485, 0.456, 0.406]).view(3, 1, 1)
+        std = torch.tensor([0.229, 0.224, 0.225]).view(3, 1, 1)
+        image_tensor = (image_tensor - mean) / std
+        
+        # Add batch dimension and move to device
+        image_batch = image_tensor.unsqueeze(0).to(self.device)
+        
+        # Run inference
+        with torch.no_grad():
+            outputs = self.model(pixel_values=image_batch)
+            logits = outputs.logits
+            
+            # Upsample to original size
+            logits = F.interpolate(
+                logits,
+                size=(h, w),
+                mode='bilinear',
+                align_corners=False
+            )
+            
+            # Get class predictions
+            pred = torch.argmax(logits, dim=1).squeeze(0).cpu().numpy()
+        
+        return pred
+    
+    def _classify_point_from_segmentation(self, segmentation: np.ndarray, point: Tuple[int, int]) -> str:
+        """
+        Classify a point based on segmentation map.
+        
+        Args:
+            segmentation: Segmentation map (H x W)
             point: (x, y) coordinates
             
         Returns:
@@ -54,39 +181,22 @@ class RegionClassifier:
         """
         x, y = int(point[0]), int(point[1])
         
-        # Ensure point is within image bounds
-        h, w = image.shape[:2]
+        # Ensure point is within bounds
+        h, w = segmentation.shape
         x = max(0, min(x, w - 1))
         y = max(0, min(y, h - 1))
         
-        # Get pixel color
-        pixel_bgr = image[y, x]
+        # Get class ID at point
+        class_id = segmentation[y, x]
+        class_name = self.id2label.get(class_id, 'other')
         
-        # Convert to HSV for better color analysis
-        pixel_hsv = cv2.cvtColor(np.uint8([[pixel_bgr]]), cv2.COLOR_BGR2HSV)[0][0]
-        h_val, s_val, v_val = pixel_hsv
-        
-        # Also check RGB for additional context
-        b, g, r = pixel_bgr
-        
-        # Water detection: Blue hues with decent saturation
-        # HSV: Hue 90-130 (blue), Saturation > 30, Value > 50
-        if 90 <= h_val <= 130 and s_val > 30 and v_val > 50:
+        # Map to simplified categories
+        if class_name == 'water':
             return 'water'
-        
-        # Beach/Sand detection: Tan/beige/yellow hues
-        # HSV: Hue 10-30 (yellow-orange), Low saturation, High value
-        elif 10 <= h_val <= 35 and s_val < 100 and v_val > 100:
+        elif class_name == 'beach':
             return 'beach'
-        
-        # Additional beach check: Light colors (sand can be very light)
-        elif v_val > 150 and s_val < 50:
-            # Check if it's more yellow/tan than blue
-            if r > b and g > b:
-                return 'beach'
-        
-        # Everything else (boats, buildings, people, etc.)
-        return 'other'
+        else:
+            return 'other'
     
     def _get_bbox_center(self, bbox: Dict) -> Tuple[int, int]:
         """
@@ -155,13 +265,17 @@ class RegionClassifier:
             }
         
         try:
+            # Apply mask and run segmentation
+            masked_image = self._apply_mask(image)
+            segmentation = self._segment_image(masked_image)
+            
             classifications = []
             
             # Classify each person based on their bounding box location
             for idx, bbox in enumerate(person_boxes):
                 # Use bottom-center of bbox (where feet are) for more accurate classification
                 point = self._get_bbox_bottom_center(bbox)
-                location = self._classify_region_by_color(image, point)
+                location = self._classify_point_from_segmentation(segmentation, point)
                 
                 classifications.append({
                     'box_id': idx,

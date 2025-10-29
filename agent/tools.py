@@ -29,7 +29,21 @@ logger = logging.getLogger(__name__)
 _snapshot_cache = {
     'path': None,
     'timestamp': None,
-    'cache_duration': timedelta(minutes=5)  # Cache for 5 minutes
+    'cache_duration': timedelta(minutes=5),  # Cache for 5 minutes
+    # Guard to avoid re-running analysis in a loop when images are missing
+    'last_attempts': {
+        'annotated': {'path': None, 'time': None},
+        'regions': {'path': None, 'time': None},
+    },
+    'last_analysis': {
+        'path': None,
+        'people_count': None,
+        'boat_count': None,
+        'beach_count': None,
+        'water_count': None,
+        'other_count': None,
+        'summary': None,
+    }
 }
 
 class BeachMonitoringTool:
@@ -109,6 +123,18 @@ class BeachMonitoringTool:
             }
             
             logger.info(f"Analysis complete: {response['summary']}")
+
+            # Cache last analysis for quick retrieval by image tools
+            _snapshot_cache['last_analysis'] = {
+                'path': snapshot_path,
+                'people_count': response.get('people_count'),
+                'boat_count': response.get('boat_count'),
+                'beach_count': response.get('beach_count'),
+                'water_count': response.get('water_count'),
+                'other_count': response.get('other_count'),
+                'summary': response.get('summary'),
+            }
+
             return response
             
         except Exception as e:
@@ -218,6 +244,111 @@ def get_original_image_tool() -> str:
 
 
 @tool
+def get_annotated_image_tool() -> str:
+    """
+    Get the most recent annotated detection image (with bounding boxes).
+
+    Uses the cached snapshot path to derive the annotated image path. If the
+    annotated image does not exist yet, runs analysis to generate it.
+
+    Returns:
+        Path to the annotated image, or a message if unavailable.
+    """
+    global _snapshot_cache
+    tool = BeachMonitoringTool()
+    try:
+        snapshot_path = _snapshot_cache.get('path')
+        if not snapshot_path:
+            return "No recent snapshot available. Please run analyze_beach_tool first."
+
+        sp = Path(snapshot_path)
+        annotated_path = sp.parent / f"{sp.stem}_annotated{sp.suffix}"
+
+        if not annotated_path.exists():
+            # Retry guard: avoid repeated analysis attempts within 60s for same snapshot
+            last = _snapshot_cache['last_attempts']['annotated']
+            now = datetime.now()
+            if last['path'] == str(sp) and last['time'] and (now - last['time']).total_seconds() < 60:
+                return "Annotated image is not available yet. Please try again in a minute."
+
+            # Run analysis to produce annotated image
+            result = tool.analyze_snapshot(str(sp))
+            _snapshot_cache['last_attempts']['annotated'] = {'path': str(sp), 'time': now}
+            if not result.get('success'):
+                return f"Unable to generate annotated image: {result.get('error', 'Unknown error')}"
+
+        if annotated_path.exists():
+            # Attach counts if they correspond to this snapshot
+            counts_text = ""
+            last = _snapshot_cache.get('last_analysis', {})
+            if last.get('path') == str(sp):
+                b = last.get('beach_count') or 0
+                w = last.get('water_count') or 0
+                o = last.get('other_count') or 0
+                total = (last.get('people_count') or (b + w + o))
+                counts_text = f"\nCounts: {total} total ({b} on beach, {w} in water" + (f", {o} other" if o else "") + ")"
+            return f"Annotated image is available at: {annotated_path}{counts_text}"
+        else:
+            return "Annotated image is not available."
+    except Exception as e:
+        logger.error(f"Error getting annotated image: {e}")
+        return f"Failed to get annotated image: {str(e)}"
+
+
+@tool
+def get_regions_image_tool() -> str:
+    """
+    Get the most recent regions classification image (beach vs water per person).
+
+    Uses the cached snapshot path to derive the regions image path. If the
+    regions image does not exist yet, runs analysis to try to generate it.
+
+    Note: If location classification is disabled or failed, the regions image
+    may not be produced.
+
+    Returns:
+        Path to the regions image, or a message if unavailable.
+    """
+    global _snapshot_cache
+    tool = BeachMonitoringTool()
+    try:
+        snapshot_path = _snapshot_cache.get('path')
+        if not snapshot_path:
+            return "No recent snapshot available. Please run analyze_beach_tool first."
+
+        sp = Path(snapshot_path)
+        regions_path = sp.parent / f"{sp.stem}_regions{sp.suffix}"
+
+        if not regions_path.exists():
+            # Retry guard: avoid repeated analysis attempts within 60s for same snapshot
+            last = _snapshot_cache['last_attempts']['regions']
+            now = datetime.now()
+            if last['path'] == str(sp) and last['time'] and (now - last['time']).total_seconds() < 60:
+                return "Regions image is not available yet (classification may be disabled or still processing). Please try again in a minute."
+
+            # Run analysis to try to generate regions image
+            result = tool.analyze_snapshot(str(sp))
+            _snapshot_cache['last_attempts']['regions'] = {'path': str(sp), 'time': now}
+            if not result.get('success'):
+                return f"Unable to generate regions image: {result.get('error', 'Unknown error')}"
+
+        if regions_path.exists():
+            # Attach counts if they correspond to this snapshot
+            counts_text = ""
+            last = _snapshot_cache.get('last_analysis', {})
+            if last.get('path') == str(sp):
+                b = last.get('beach_count') or 0
+                w = last.get('water_count') or 0
+                o = last.get('other_count') or 0
+                total = (last.get('people_count') or (b + w + o))
+                counts_text = f"\nCounts: {total} total ({b} on beach, {w} in water" + (f", {o} other" if o else "") + ")"
+            return f"Regions image is available at: {regions_path}{counts_text}"
+        else:
+            return "Regions image is not available (location classification may be disabled or failed)."
+    except Exception as e:
+        logger.error(f"Error getting regions image: {e}")
+        return f"Failed to get regions image: {str(e)}"
+@tool
 def capture_snapshot_tool() -> str:
     """
     Capture a NEW snapshot from the beach livestream.
@@ -305,14 +436,3 @@ def get_weather_tool() -> str:
     except Exception as e:
         logger.error(f"Error getting weather: {e}")
         return f"Unable to determine weather conditions: {str(e)}"
-
-
-# Legacy tool for backward compatibility
-@tool
-def beach_status_tool() -> str:
-    """
-    DEPRECATED: Use analyze_beach_tool instead.
-    
-    Get current beach status (captures and analyzes in one step).
-    """
-    return analyze_beach_tool.invoke({})
