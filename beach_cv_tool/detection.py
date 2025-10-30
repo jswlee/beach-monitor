@@ -151,8 +151,8 @@ class BeachDetector:
                                 box = result.boxes.xyxy[i].cpu().numpy()
                                 person_boxes.append({'xyxy': box.tolist()})
                     
-                    # Classify locations
-                    numbered_annotated_path = source_path.parent / f"{source_path.stem}_regions.jpg"
+                    # Classify locations by running the fine-tuned segmentation model
+                    numbered_annotated_path = source_path.parent / f"{source_path.stem}_segmented.jpg"
                     location_result = self.region_classifier.classify_locations(
                         image,
                         person_boxes,

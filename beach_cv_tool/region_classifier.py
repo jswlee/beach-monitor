@@ -15,6 +15,7 @@ import logging
 from typing import Dict, List, Any, Tuple
 from pathlib import Path
 import os
+import yaml
 import torch
 from transformers import AutoModelForSemanticSegmentation
 import torch.nn.functional as F
@@ -38,14 +39,34 @@ except Exception:
 class RegionClassifier:
     """Classifies person locations (beach vs water) using trained segmentation model."""
     
-    def __init__(self, model_path: str = None):
+    def __init__(self, model_path: str = None, config_path: str = "config.yaml"):
         """
         Initialize the region classifier with water-beach segmentation model.
         
         Args:
             model_path: Path to trained model. If None, uses default path.
+            config_path: Path to configuration file.
         """
-        self.device = "cuda" if torch.cuda.is_available() else "cpu"
+        # Load configuration
+        with open(config_path, 'r', encoding='utf-8') as f:
+            self.config = yaml.safe_load(f)
+        # Setup device
+        if torch.cuda.is_available():
+            self.device = torch.device('cuda')
+        else:
+            # Provide detailed error information if CUDA is not available
+            if hasattr(torch.backends, "mps") and torch.backends.mps.is_available():
+                self.device = torch.device('mps')
+            else:
+                self.device = torch.device('cpu')
+                try:
+                    # Provides detailed error message if CUDA fails to initialize
+                    torch.cuda.init()
+                except Exception as e:
+                    print(f"CUDA Initialization Error: {e}")
+
+        print(f"--- Using device: {self.device} ---")
+
         logger.info(f"Using device: {self.device}")
         
         # Strategy:
@@ -87,12 +108,12 @@ class RegionClassifier:
             # Load from cache dir
             self._load_model_from_dir(cache_dir)
         
-        # Polygon mask for the beach area (from mask.py)
-        self.mask_polygon = np.array([[2, 693], [1655, 380], [1861, 485], [1850, 617], [1819, 614], [1790, 628], [1794, 644], [1782, 655], [1757, 673], [1753, 681], [1783, 693], [1642, 749], [1621, 723], [1444, 777], [1206, 823], [1169, 820], [904, 868], [804, 907], [745, 937], [676, 943], [621, 960], [595, 954], [580, 967], [551, 968], [472, 972], [249, 1012], [214, 1021], [159, 1023], [49, 1050], [4, 1073]])
+        # Load polygon mask from config
+        self.mask_polygon = np.array(self.config['segmentation']['mask_polygon'])
         
-        # Class mapping from model config
-        self.id2label = {0: 'background', 1: 'base-background-layer-segmentation', 2: 'beach', 3: 'water'}
-        
+        # Load class mapping from config
+        self.id2label = self.config['segmentation']['class_mapping']
+
         logger.info("Region classifier initialized with segmentation model")
 
     def _load_model_from_dir(self, model_dir: Path) -> None:
@@ -101,9 +122,7 @@ class RegionClassifier:
         Expects config.json and model.safetensors to be present.
         """
         try:
-            self.model = AutoModelForSemanticSegmentation.from_pretrained(str(model_dir))
-            self.model = self.model.to(self.device)
-            self.model.eval()
+            self.model = AutoModelForSemanticSegmentation.from_pretrained(str(model_dir)).to(self.device).eval()
             logger.info(f"Loaded segmentation model from {model_dir}")
         except Exception as e:
             logger.error(f"Failed to load model from {model_dir}: {e}")
@@ -137,11 +156,11 @@ class RegionClassifier:
         # Convert BGR to RGB
         image_rgb = cv2.cvtColor(image, cv2.COLOR_BGR2RGB)
         
-        # Resize to model input size (512x512 based on test_model.py)
+        # Resize to model input size (512x512)
         h, w = image_rgb.shape[:2]
         image_resized = cv2.resize(image_rgb, (512, 512))
         
-        # Normalize and convert to tensor
+        # Normalize and convert to tensor (ImageNet normalization for pre-trained model)
         image_tensor = torch.from_numpy(image_resized).permute(2, 0, 1).float() / 255.0
         mean = torch.tensor([0.485, 0.456, 0.406]).view(3, 1, 1)
         std = torch.tensor([0.229, 0.224, 0.225]).view(3, 1, 1)
@@ -197,21 +216,6 @@ class RegionClassifier:
             return 'beach'
         else:
             return 'other'
-    
-    def _get_bbox_center(self, bbox: Dict) -> Tuple[int, int]:
-        """
-        Get the center point of a bounding box.
-        
-        Args:
-            bbox: Dictionary with 'xyxy' key containing [x1, y1, x2, y2]
-            
-        Returns:
-            (center_x, center_y)
-        """
-        x1, y1, x2, y2 = bbox['xyxy']
-        center_x = int((x1 + x2) / 2)
-        center_y = int((y1 + y2) / 2)
-        return (center_x, center_y)
     
     def _get_bbox_bottom_center(self, bbox: Dict) -> Tuple[int, int]:
         """
@@ -376,45 +380,3 @@ class RegionClassifier:
         
         cv2.imwrite(output_path, annotated)
         logger.info(f"Saved annotated image to: {output_path}")
-
-
-if __name__ == '__main__':
-    """Test the region classifier with a sample image."""
-    
-    # Create a dummy test image (blue water, tan beach)
-    test_image = np.zeros((1080, 1920, 3), dtype=np.uint8)
-    
-    # Fill with water (blue) on top half
-    test_image[:540, :] = [200, 100, 50]  # Blue water
-    
-    # Fill with beach (tan) on bottom half
-    test_image[540:, :] = [100, 180, 220]  # Tan beach
-    
-    # Create some dummy bounding boxes
-    dummy_boxes = [
-        {'xyxy': [100, 100, 200, 300]},   # In water
-        {'xyxy': [500, 200, 600, 400]},   # In water
-        {'xyxy': [1000, 600, 1100, 800]}, # On beach
-        {'xyxy': [1500, 700, 1600, 900]}, # On beach
-    ]
-    
-    try:
-        classifier = RegionClassifier()
-        result = classifier.classify_locations(
-            test_image, 
-            dummy_boxes,
-            save_annotated=True,
-            annotated_path="test_region_annotated.jpg"
-        )
-        
-        print("\n--- Classification Result ---")
-        print(f"Total: {result['total_count']}")
-        print(f"Beach: {result['beach_count']}")
-        print(f"Water: {result['water_count']}")
-        print(f"Other: {result['other_count']}")
-        print("\nDetails:")
-        for c in result['classifications']:
-            print(f"  Box {c['box_id']}: {c['location']} at {c['point']}")
-        
-    except Exception as e:
-        logger.error(f"Test failed: {e}")

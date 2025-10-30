@@ -14,7 +14,6 @@ from langchain_openai import ChatOpenAI
 from langchain_core.messages import HumanMessage
 from pathlib import Path
 import sys
-import os
 import cv2
 from datetime import datetime, timedelta
 
@@ -46,18 +45,24 @@ _snapshot_cache = {
     }
 }
 
+# Simplified singleton - module level instance
+_beach_monitoring_tool = None
+
+def get_beach_monitoring_tool():
+    """Get the shared BeachMonitoringTool instance"""
+    global _beach_monitoring_tool
+    if _beach_monitoring_tool is None:
+        _beach_monitoring_tool = BeachMonitoringTool()
+    return _beach_monitoring_tool
+
 class BeachMonitoringTool:
     """Shared tool instance for beach monitoring operations"""
     
-    _instance = None
-    
-    def __new__(cls):
-        if cls._instance is None:
-            cls._instance = super().__new__(cls)
-            cls._instance.capture = BeachCapture()
-            cls._instance.detector = BeachDetector()
-            cls._instance.vision_llm = ChatOpenAI(model="gpt-4o-mini", max_tokens=1024)
-        return cls._instance
+    def __init__(self):
+        """Initialize beach monitoring tool"""
+        self.capture = BeachCapture()
+        self.detector = BeachDetector()
+        self.vision_llm = ChatOpenAI(model="gpt-4o-mini", max_tokens=1024)
     
     def capture_snapshot(self, force_new: bool = False) -> str:
         """
@@ -255,7 +260,7 @@ def get_annotated_image_tool() -> str:
         Path to the annotated image, or a message if unavailable.
     """
     global _snapshot_cache
-    tool = BeachMonitoringTool()
+    tool = get_beach_monitoring_tool()
     try:
         snapshot_path = _snapshot_cache.get('path')
         if not snapshot_path:
@@ -310,16 +315,16 @@ def get_regions_image_tool() -> str:
         Path to the regions image, or a message if unavailable.
     """
     global _snapshot_cache
-    tool = BeachMonitoringTool()
+    tool = get_beach_monitoring_tool()
     try:
         snapshot_path = _snapshot_cache.get('path')
         if not snapshot_path:
             return "No recent snapshot available. Please run analyze_beach_tool first."
 
         sp = Path(snapshot_path)
-        regions_path = sp.parent / f"{sp.stem}_regions{sp.suffix}"
+        segmented_image_path = sp.parent / f"{sp.stem}_segmented{sp.suffix}"
 
-        if not regions_path.exists():
+        if not segmented_image_path.exists():
             # Retry guard: avoid repeated analysis attempts within 60s for same snapshot
             last = _snapshot_cache['last_attempts']['regions']
             now = datetime.now()
@@ -332,7 +337,7 @@ def get_regions_image_tool() -> str:
             if not result.get('success'):
                 return f"Unable to generate regions image: {result.get('error', 'Unknown error')}"
 
-        if regions_path.exists():
+        if segmented_image_path.exists():
             # Attach counts if they correspond to this snapshot
             counts_text = ""
             last = _snapshot_cache.get('last_analysis', {})
@@ -342,7 +347,7 @@ def get_regions_image_tool() -> str:
                 o = last.get('other_count') or 0
                 total = (last.get('people_count') or (b + w + o))
                 counts_text = f"\nCounts: {total} total ({b} on beach, {w} in water" + (f", {o} other" if o else "") + ")"
-            return f"Regions image is available at: {regions_path}{counts_text}"
+            return f"Regions image is available at: {segmented_image_path}{counts_text}"
         else:
             return "Regions image is not available (location classification may be disabled or failed)."
     except Exception as e:
@@ -361,7 +366,7 @@ def capture_snapshot_tool() -> str:
     Returns:
         Path to the newly captured snapshot image.
     """
-    tool = BeachMonitoringTool()
+    tool = get_beach_monitoring_tool()
     try:
         snapshot_path = tool.capture_snapshot(force_new=True)
         return f"Successfully captured fresh beach snapshot. Image saved at: {snapshot_path}"
@@ -384,7 +389,7 @@ def analyze_beach_tool() -> str:
     Returns:
         Detailed analysis of beach activity including counts and annotated image path.
     """
-    tool = BeachMonitoringTool()
+    tool = get_beach_monitoring_tool()
     try:
         # Capture snapshot if needed
         snapshot_path = tool.capture_snapshot()
@@ -428,7 +433,7 @@ def get_weather_tool() -> str:
     Returns:
         Description of weather conditions (sunny, cloudy, water conditions, etc.).
     """
-    tool = BeachMonitoringTool()
+    tool = get_beach_monitoring_tool()
     try:
         # Use cached snapshot or capture new one
         snapshot_path = tool.capture_snapshot()

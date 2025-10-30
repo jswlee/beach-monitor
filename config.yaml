@@ -28,6 +28,18 @@ roi:
     - [[10, 50, 50], [30, 255, 255]]    # Sandy beach HSV ranges
   min_area: 1000  # minimum area for ROI detection
 
+# Segmentation model settings
+segmentation:
+  # Beach area polygon mask for Kaanapali Beach
+  mask_polygon: [[2, 693], [1655, 380], [1861, 485], [1850, 617], [1819, 614], [1790, 628], [1794, 644], [1782, 655], [1757, 673], [1753, 681], [1783, 693], [1642, 749], [1621, 723], [1444, 777], [1206, 823], [1169, 820], [904, 868], [804, 907], [745, 937], [676, 943], [621, 960], [595, 954], [580, 967], [551, 968], [472, 972], [249, 1012], [214, 1021], [159, 1023], [49, 1050], [4, 1073]]
+  
+  # Class mapping from segmentation model
+  class_mapping:
+    0: 'background'
+    1: 'base-background-layer-segmentation'
+    2: 'beach'
+    3: 'water'
+
 # Agent settings
 agent:
   model: "gpt-3.5-turbo"
