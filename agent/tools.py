@@ -226,8 +226,6 @@ def get_original_image_tool() -> str:
     after an analysis has been done. This returns the unmodified snapshot that
     was used for the most recent analysis.
     
-    This is efficient because it doesn't require capturing a new snapshot from YouTube.
-    
     Returns:
         Path to the most recent snapshot image.
     """

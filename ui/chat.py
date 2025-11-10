@@ -45,7 +45,7 @@ def main():
                 image_path = message["image_path"]
                 if Path(image_path).exists():
                     caption = message.get("image_caption", "Beach Image")
-                    st.image(str(image_path), caption=caption, use_container_width=True)
+                    st.image(str(image_path), caption=caption, width="stretch")
             
             # Then display the text (if any)
             if message["content"]:
@@ -68,6 +68,13 @@ def main():
                 image_caption = agent_state.get('image_caption')
                 counts_text = agent_state.get('counts_text')
                 
+                # Debug logging
+                import logging
+                logger = logging.getLogger(__name__)
+                logger.info(f"LLM Response: {response}")
+                logger.info(f"Counts text: {counts_text}")
+                logger.info(f"Snapshot path: {snapshot_path}")
+                
                 # Display image if agent provided one
                 image_to_save = None
                 snapshot_displayed = False
@@ -81,7 +88,7 @@ def main():
                     if snapshot_path.exists():
                         # Use a generic caption since we removed the requirement
                         caption = image_caption or "Beach Image"
-                        st.image(str(snapshot_path), caption=caption, use_container_width=True)
+                        st.image(str(snapshot_path), caption=caption, width="stretch")
                         # Show counts below image if available
                         if counts_text:
                             st.markdown(f"**{counts_text}**")
@@ -90,14 +97,31 @@ def main():
                     else:
                         st.error(f"Image file not found at: {snapshot_path}")
 
-            # Display response text only if no image was shown
+            # Display response text
             if not snapshot_displayed:
                 st.markdown(response)
+            else:
+                # If image was shown, check if we should also show text
+                # Show text if: (1) we have counts_text, OR (2) the response has actual content
+                if counts_text:
+                    display_text = response if response.strip() else counts_text
+                    st.markdown(display_text)
+                elif response.strip():
+                    # Show LLM response if it has content (e.g., count answers)
+                    st.markdown(response)
 
         # Add assistant response to chat history with image if present
+        # Use counts_text as fallback if response is empty for count questions
+        content_to_save = response
+        if snapshot_displayed and counts_text and not response.strip():
+            content_to_save = counts_text
+        
+        # Save text to history if: no image shown, OR image shown with text content
+        save_content = content_to_save if (not snapshot_displayed or content_to_save.strip()) else ""
+        
         message_data = {
             "role": "assistant", 
-            "content": response if not snapshot_displayed else ""  # Suppress text if image shown
+            "content": save_content
         }
         if image_to_save:
             message_data["image_path"] = image_to_save

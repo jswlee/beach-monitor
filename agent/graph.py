@@ -103,7 +103,7 @@ class BeachMonitorAgent:
         
         CRITICAL RULES:
         - When user asks to "show" an image, ONLY call the image tool. Do NOT add any text response.
-        - For count questions, provide a concise text answer with numbers.
+        - For count questions (especially "beach vs water" or "people on beach vs in water"): You MUST call BOTH analyze_beach_tool AND get_regions_image_tool in the same response. The segmented image must always be shown for these questions. Then provide a concise text summary with the specific numbers (e.g., "There are 9 people total: 3 on the beach and 5 in the water").
         - The UI will display images automatically from tool outputs. Never mention file paths or links in your response.
         """)
         
