@@ -136,14 +136,14 @@ def main():
         This beach monitor uses AI to analyze live camera feeds from Kaanapali Beach.
         
         **What I can tell you:**
-        - Current number of people and boats
-        - Beach activity level (quiet, moderate, busy)
         - Number of people in the water and on the beach
+        - Beach activity level (quiet, moderate, busy) with number of people and boats
+        - Qualitative description of weather conditions
         
         **Example questions:**
-        - "How busy is the beach now?"
         - "How many people are on the beach vs the water?"
-        - "What's the current beach activity?"
+        - "How busy is the beach now?"
+        - "What's the weather like?"
         """)
         
         if st.button("Clear Chat"):
