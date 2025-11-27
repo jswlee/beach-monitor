@@ -14,7 +14,17 @@ models_cache/
 # Images and logs
 images/
 *.log
+raw_seg_images/
+
+# Training data
+training_data/
+data/
 
 # Test outputs
 test_annotated.jpg
 dummy_beach_image.jpg
+
+# Temp docs
+docs/
+scripts/
+

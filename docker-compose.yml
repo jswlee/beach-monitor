@@ -1,0 +1,60 @@
+version: '3.8'
+
+services:
+  api-service:
+    build:
+      context: .
+      dockerfile: api/Dockerfile
+    container_name: beach-monitor-api
+    ports:
+      - "8000:8000"
+    environment:
+      # AWS Credentials
+      - AWS_ACCESS_KEY_ID=${AWS_ACCESS_KEY_ID}
+      - AWS_SECRET_ACCESS_KEY=${AWS_SECRET_ACCESS_KEY}
+      
+      # S3 Model Locations
+      - S3_BUCKET_NAME=${S3_BUCKET_NAME}
+      - S3_MODEL_KEY=${S3_MODEL_KEY}
+      - SEG_S3_BUCKET_NAME=${SEG_S3_BUCKET_NAME}
+      - SEG_S3_CONFIG_KEY=${SEG_S3_CONFIG_KEY}
+      - SEG_S3_WEIGHTS_KEY=${SEG_S3_WEIGHTS_KEY}
+    volumes:
+      - ./data:/app/data
+      - ./models_cache:/app/models_cache
+      - ./raw_seg_images:/app/raw_seg_images
+    restart: unless-stopped
+    # Uncomment for GPU support (requires nvidia-docker)
+    # deploy:
+    #   resources:
+    #     reservations:
+    #       devices:
+    #         - driver: nvidia
+    #           count: 1
+    #           capabilities: [gpu]
+
+  agent-service:
+    build:
+      context: .
+      dockerfile: agent/Dockerfile
+    container_name: beach-monitor-agent
+    ports:
+      - "8501:8501"
+    environment:
+      # API Connection
+      - API_BASE_URL=http://api-service:8000
+      
+      # OpenAI
+      - OPENAI_API_KEY=${OPENAI_API_KEY}
+      
+      # LangChain (optional)
+      - LANGCHAIN_API_KEY=${LANGCHAIN_API_KEY}
+      - LANGCHAIN_TRACING_V2=${LANGCHAIN_TRACING_V2}
+      - LANGCHAIN_PROJECT=${LANGCHAIN_PROJECT}
+    depends_on:
+      - api-service
+    restart: unless-stopped
+
+networks:
+  default:
+    name: beach-monitor-network

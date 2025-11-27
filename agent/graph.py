@@ -9,10 +9,10 @@ from langchain_core.messages import BaseMessage, HumanMessage, AIMessage, ToolMe
 from langchain_core.tools import tool
 from langchain_openai import ChatOpenAI
 from .tools import (
-    get_original_image_tool,
     capture_snapshot_tool,
     analyze_beach_tool,
     get_weather_tool,
+    get_original_image_tool,
     get_annotated_image_tool,
     get_regions_image_tool,
 )
@@ -31,10 +31,10 @@ class BeachMonitorAgent:
     
     def __init__(self, openai_api_key: str = None):
         self.tools = [
-            get_original_image_tool,
             capture_snapshot_tool,
             analyze_beach_tool,
             get_weather_tool,
+            get_original_image_tool,
             get_annotated_image_tool,
             get_regions_image_tool,
         ]
@@ -86,20 +86,24 @@ class BeachMonitorAgent:
         counts for total number of people on the beach vs in the water.
         
         Available tools:
-        1. get_original_image_tool - Shows the MOST RECENT snapshot (no new capture, fast)
-        2. capture_snapshot_tool - Captures a FRESH NEW snapshot from livestream (slower)
-        3. analyze_beach_tool - Analyzes beach for people/boat counts
-        4. get_annotated_image_tool - Shows the MOST RECENT annotated image (no new capture, fast)
-        5. get_regions_image_tool - Shows the MOST RECENT segmented image to show if people are on beach or in water                   
-        6. get_weather_tool - Gets weather conditions from the beach camera
+        1. capture_snapshot_tool - Capture snapshot (force_new=True for fresh, False for cache)
+        2. analyze_beach_tool - Analyze beach activity (DEFAULT: force_fresh=True, always uses current data)
+        3. get_weather_tool - Get weather conditions from snapshot
+        4. get_original_image_tool - Get most recent original snapshot (no new capture)
+        5. get_annotated_image_tool - Get most recent annotated image (no new capture)
+        6. get_regions_image_tool - Get most recent segmented image (no new capture)
         
         Workflow:
-        - If user asks "show me the original image" or "raw image" AFTER analysis → use get_original_image_tool
-        - If user asks "show me the beach" or "what does it look like now" → use capture_snapshot_tool (captures fresh)
-        - If user asks "how busy is it", "how many people", "beach vs water" → use analyze_beach_tool
-        - If user explicitly asks about weather → use get_weather_tool; otherwise do not include weather commentary
-        - If user asks "show me the annotated image" → use get_annotated_image_tool
-        - If user asks "show me the segmented image" or something about seeing an image with water/beach annotations → use get_regions_image_tool
+        - "show me the beach" or "show me the beach NOW" → capture_snapshot_tool with force_new=True
+        - "how many people" → analyze_beach_tool (defaults to fresh analysis)
+        - "beach vs water" → analyze_beach_tool (defaults to fresh analysis)
+        - "show me the original image" → get_original_image_tool
+        - "show me the annotated image" → get_annotated_image_tool
+        - "show me the segmented image" → get_regions_image_tool
+        - "what's the weather" → get_weather_tool
+        
+        NOTE: analyze_beach_tool ALWAYS uses fresh data by default (force_fresh=True).
+        Only set force_fresh=False if user explicitly asks for cached/historical analysis.
         
         CRITICAL RULES:
         - When user asks to "show" an image, ONLY call the image tool. Do NOT add any text response.

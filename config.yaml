@@ -7,27 +7,6 @@ camera:
   max_retries: 3
   timeout: 10
 
-# Model paths and settings
-models:
-  yolo_path: "models/yolo_people.pt"
-  roi_detector_path: "models/roi_detector.pt"
-  yolo_confidence: 0.5
-  yolo_iou: 0.45
-
-# Weights & Biases configuration
-wandb:
-  project: "beach-detection"
-  name: "yolo-beach-training"
-  enabled: true
-
-# ROI detection settings
-roi:
-  water_color_ranges:
-    - [[100, 50, 50], [130, 255, 255]]  # Blue water HSV ranges
-  beach_color_ranges:
-    - [[10, 50, 50], [30, 255, 255]]    # Sandy beach HSV ranges
-  min_area: 1000  # minimum area for ROI detection
-
 # Segmentation model settings
 segmentation:
   # Beach area polygon mask for Kaanapali Beach
@@ -69,16 +48,6 @@ ui:
 # Data paths
 paths:
   snapshots: "data/snapshots"
-  training_samples: "data/training_samples"
-  roi_zones: "data/roi_zones.json"
-  models: "models"
-
-# Training output paths (for external volume storage)
-training_outputs:
-  base_path: "/media/volume/yolo-training-data"  # Jetstream2 volume path
-  models_dir: "models"
-  runs_dir: "runs" 
-  wandb_dir: "wandb"
 
 # Logging
 logging:

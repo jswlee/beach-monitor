@@ -1,10 +1,14 @@
 """
-Beach monitoring tools for the agent
+Beach monitoring tools for the agent - API client version
+
+These tools interact with the Beach Monitor API service via HTTP,
+with no direct model imports. This allows the agent to run independently
+from the CV models, enabling containerization and separation of concerns.
 
 Modular tools that can be composed:
-1. capture_snapshot_tool - Just captures and returns the image path
+1. capture_snapshot_tool - Captures and returns the image path
 2. analyze_beach_tool - Analyzes a snapshot (uses cached if available)
-3. get_weather_tool - Gets weather from snapshot
+3. get_weather_tool - Gets weather from snapshot using vision model
 """
 import logging
 from typing import Dict, Any, Optional
@@ -13,40 +17,207 @@ import base64
 from langchain_openai import ChatOpenAI
 from langchain_core.messages import HumanMessage
 from pathlib import Path
-import sys
-import cv2
 from datetime import datetime, timedelta
 
-# Add parent directory to path
-sys.path.append(str(Path(__file__).parent.parent))
-from beach_cv_tool.capture import BeachCapture
-from beach_cv_tool.detection import BeachDetector
+from agent.api_client import get_api_client
 
 logger = logging.getLogger(__name__)
 
 # Global cache for snapshot (so tools can share the same snapshot)
 _snapshot_cache = {
     'path': None,
+    'url': None,
     'timestamp': None,
     'cache_duration': timedelta(minutes=5),  # Cache for 5 minutes
-    # Guard to avoid re-running analysis in a loop when images are missing
-    'last_attempts': {
-        'annotated': {'path': None, 'time': None},
-        'regions': {'path': None, 'time': None},
-    },
     'last_analysis': {
-        'path': None,
         'people_count': None,
         'boat_count': None,
         'beach_count': None,
         'water_count': None,
         'other_count': None,
         'summary': None,
+        'annotated_url': None,
+        'segmented_url': None,
     }
 }
 
-# Simplified singleton - module level instance
+
+class BeachMonitoringTool:
+    """Shared tool instance for beach monitoring operations via API"""
+    
+    def __init__(self):
+        """Initialize beach monitoring tool with API client"""
+        self.api_client = get_api_client()
+        self.vision_llm = ChatOpenAI(model="gpt-4o-mini", max_tokens=1024)
+        logger.info("Initialized BeachMonitoringTool with API client")
+    
+    def capture_snapshot(self, force_new: bool = False) -> Dict[str, str]:
+        """
+        Capture a beach snapshot via API (with caching)
+        
+        Args:
+            force_new: If True, always capture a new snapshot
+        
+        Returns:
+            Dictionary with 'path' and 'url' keys
+        """
+        global _snapshot_cache
+        
+        # Check if we have a valid cached snapshot
+        if not force_new and _snapshot_cache['path'] and _snapshot_cache['timestamp']:
+            age = datetime.now() - _snapshot_cache['timestamp']
+            if age < _snapshot_cache['cache_duration']:
+                logger.info(f"Using cached snapshot from {age.seconds}s ago")
+                return {
+                    'path': _snapshot_cache['path'],
+                    'url': _snapshot_cache['url']
+                }
+        
+        # Capture new snapshot via API
+        logger.info("Capturing new beach snapshot via API...")
+        try:
+            result = self.api_client.capture_snapshot()
+            snapshot_url = result['snapshot_url']
+            
+            # Download the snapshot
+            snapshot_path = self.api_client.download_image(snapshot_url)
+            
+            # Update cache
+            _snapshot_cache['path'] = snapshot_path
+            _snapshot_cache['url'] = snapshot_url
+            _snapshot_cache['timestamp'] = datetime.now()
+            
+            logger.info(f"Snapshot captured: {snapshot_path}")
+            return {
+                'path': snapshot_path,
+                'url': snapshot_url
+            }
+            
+        except Exception as e:
+            logger.error(f"Failed to capture snapshot: {e}")
+            raise
+    
+    def analyze_snapshot(self, snapshot_path: Optional[str] = None) -> Dict[str, Any]:
+        """
+        Analyze a beach snapshot via API
+        
+        Args:
+            snapshot_path: Path to snapshot. If None, uses cached snapshot.
+        
+        Returns:
+            Dictionary with analysis results
+        """
+        global _snapshot_cache
+        
+        # Use cached snapshot if no path provided, or capture new one
+        if snapshot_path is None:
+            if not _snapshot_cache['path']:
+                # No cached snapshot, capture a fresh one
+                logger.info("No cached snapshot, capturing fresh one...")
+                capture_result = self.capture_snapshot(force_new=True)
+                snapshot_path = capture_result['path']
+            else:
+                snapshot_path = _snapshot_cache['path']
+        
+        logger.info(f"Analyzing snapshot via API: {snapshot_path}")
+        
+        try:
+            # Call API for analysis
+            analysis = self.api_client.analyze_beach(snapshot_path)
+            
+            # Update cache
+            _snapshot_cache['last_analysis'] = {
+                'people_count': analysis['people_count'],
+                'boat_count': analysis['boat_count'],
+                'beach_count': analysis['beach_count'],
+                'water_count': analysis['water_count'],
+                'other_count': analysis['other_count'],
+                'summary': analysis['summary'],
+                'annotated_url': analysis['annotated_image_url'],
+                'segmented_url': analysis.get('segmented_image_url'),
+            }
+            
+            return {
+                'success': True,
+                'snapshot_path': snapshot_path,
+                'people_count': analysis['people_count'],
+                'boat_count': analysis['boat_count'],
+                'beach_count': analysis['beach_count'],
+                'water_count': analysis['water_count'],
+                'other_count': analysis['other_count'],
+                'activity_level': analysis['activity_level'],
+                'summary': analysis['summary'],
+                'annotated_image_url': analysis['annotated_image_url'],
+                'segmented_image_url': analysis.get('segmented_image_url'),
+                'processing_time_ms': analysis['processing_time_ms']
+            }
+            
+        except Exception as e:
+            logger.error(f"Analysis failed: {e}")
+            return {
+                'success': False,
+                'error': str(e),
+                'snapshot_path': snapshot_path
+            }
+    
+    def get_weather_from_snapshot(self, snapshot_path: Optional[str] = None) -> str:
+        """
+        Use vision model to describe weather conditions from snapshot
+        
+        Args:
+            snapshot_path: Path to snapshot. If None, uses cached snapshot.
+        
+        Returns:
+            Weather description string
+        """
+        # Use cached snapshot if no path provided
+        if snapshot_path is None:
+            if not _snapshot_cache['path']:
+                raise ValueError("No snapshot available. Capture a snapshot first.")
+            snapshot_path = _snapshot_cache['path']
+        
+        logger.info(f"Getting weather from snapshot: {snapshot_path}")
+        
+        try:
+            # Encode image to base64
+            with open(snapshot_path, 'rb') as f:
+                image_data = base64.b64encode(f.read()).decode('utf-8')
+            
+            # Create message with image
+            message = HumanMessage(
+                content=[
+                    {
+                        "type": "text",
+                        "text": "Describe the weather conditions visible in this beach image. "
+                               "Focus on: sky conditions (clear/cloudy/overcast), "
+                               "wave conditions (calm/moderate/rough), "
+                               "visibility, and any notable weather features. "
+                               "Keep it concise (2-3 sentences)."
+                    },
+                    {
+                        "type": "image_url",
+                        "image_url": {
+                            "url": f"data:image/jpeg;base64,{image_data}"
+                        }
+                    }
+                ]
+            )
+            
+            # Get response from vision model
+            response = self.vision_llm.invoke([message])
+            weather_description = response.content
+            
+            logger.info(f"Weather description: {weather_description}")
+            return weather_description
+            
+        except Exception as e:
+            logger.error(f"Failed to get weather: {e}")
+            return f"Unable to determine weather conditions: {str(e)}"
+
+
+# Singleton instance
 _beach_monitoring_tool = None
+
 
 def get_beach_monitoring_tool():
     """Get the shared BeachMonitoringTool instance"""
@@ -55,167 +226,107 @@ def get_beach_monitoring_tool():
         _beach_monitoring_tool = BeachMonitoringTool()
     return _beach_monitoring_tool
 
-class BeachMonitoringTool:
-    """Shared tool instance for beach monitoring operations"""
-    
-    def __init__(self):
-        """Initialize beach monitoring tool"""
-        self.capture = BeachCapture()
-        self.detector = BeachDetector()
-        self.vision_llm = ChatOpenAI(model="gpt-4o-mini", max_tokens=1024)
-    
-    def capture_snapshot(self, force_new: bool = False) -> str:
-        """
-        Capture a beach snapshot (with caching)
-        
-        Args:
-            force_new: If True, always capture a new snapshot
-        
-        Returns:
-            Path to the snapshot image
-        """
-        global _snapshot_cache
-        
-        # Check if we have a valid cached snapshot
-        if not force_new and _snapshot_cache['path'] and _snapshot_cache['timestamp']:
-            age = datetime.now() - _snapshot_cache['timestamp']
-            if age < _snapshot_cache['cache_duration']:
-                logger.info(f"Using cached snapshot from {age.seconds}s ago: {_snapshot_cache['path']}")
-                return _snapshot_cache['path']
-        
-        # Capture new snapshot
-        logger.info("Capturing new beach snapshot...")
-        snapshot_path = self.capture.capture_snapshot()
-        
-        # Update cache
-        _snapshot_cache['path'] = snapshot_path
-        _snapshot_cache['timestamp'] = datetime.now()
-        
-        logger.info(f"Snapshot captured: {snapshot_path}")
-        return snapshot_path
-    
-    def analyze_snapshot(self, snapshot_path: Optional[str] = None) -> Dict[str, Any]:
-        """
-        Analyze a beach snapshot
-        
-        Args:
-            snapshot_path: Path to snapshot. If None, uses cached snapshot.
-        
-        Returns:
-            Dictionary with analysis results
-        """
-        try:
-            # Use cached snapshot if no path provided
-            if snapshot_path is None:
-                snapshot_path = _snapshot_cache.get('path')
-                if not snapshot_path:
-                    raise ValueError("No snapshot available. Capture a snapshot first.")
-            
-            logger.info(f"Analyzing snapshot: {snapshot_path}")
-            analysis = self.detector.analyze_beach_activity(snapshot_path)
-            
-            response = {
-                'success': True,
-                'snapshot_path': snapshot_path,
-                'annotated_image_path': analysis['annotated_image_path'],
-                'people_count': analysis['people_count'],
-                'boat_count': analysis['boat_count'],
-                'beach_count': analysis.get('beach_count', 0),
-                'water_count': analysis.get('water_count', 0),
-                'other_count': analysis.get('other_count', 0),
-                'activity_level': analysis['activity_level'],
-                'summary': analysis['summary']
-            }
-            
-            logger.info(f"Analysis complete: {response['summary']}")
 
-            # Cache last analysis for quick retrieval by image tools
-            _snapshot_cache['last_analysis'] = {
-                'path': snapshot_path,
-                'people_count': response.get('people_count'),
-                'boat_count': response.get('boat_count'),
-                'beach_count': response.get('beach_count'),
-                'water_count': response.get('water_count'),
-                'other_count': response.get('other_count'),
-                'summary': response.get('summary'),
-            }
+# LangChain tool definitions
 
-            return response
-            
-        except Exception as e:
-            logger.error(f"Error analyzing snapshot: {e}")
-            return {
-                'success': False,
-                'error': str(e),
-                'summary': f'Unable to analyze snapshot: {str(e)}'
-            }
-
-    def resize_image(self, image_path: str, max_width: int = 800) -> str:
-        """Resize an image to reduce file size while maintaining aspect ratio.
-        
-        Args:
-            image_path: Path to the original image
-            max_width: Maximum width for the resized image
-            
-        Returns:
-            Path to the resized image
-        """
-        try:
-            # Read the image
-            img = cv2.imread(image_path)
-            if img is None:
-                logger.error(f"Could not read image: {image_path}")
-                return image_path
-                
-            # Calculate new dimensions
-            height, width = img.shape[:2]
-            if width <= max_width:
-                return image_path  # No need to resize
-                
-            # Maintain aspect ratio
-            new_height = int(height * (max_width / width))
-            resized_img = cv2.resize(img, (max_width, new_height))
-            
-            # Save resized image
-            original_path = Path(image_path)
-            resized_path = original_path.parent / f"{original_path.stem}_resized{original_path.suffix}"
-            cv2.imwrite(str(resized_path), resized_img)
-            
-            logger.info(f"Resized image saved to: {resized_path}")
-            return str(resized_path)
-            
-        except Exception as e:
-            logger.error(f"Error resizing image: {e}")
-            return image_path  # Return original path if resize fails
+@tool
+def capture_snapshot_tool(force_new: bool = False) -> str:
+    """
+    Capture a snapshot from the beach livestream.
     
-    def get_weather_from_image(self, image_path: str) -> str:
-        """Analyze the weather from an image using a multimodal model."""
-        try:
-            # Resize the image to reduce API costs
-            resized_image_path = self.resize_image(image_path)
-            
-            with open(resized_image_path, "rb") as image_file:
-                base64_image = base64.b64encode(image_file.read()).decode('utf-8')
+    Args:
+        force_new: Set to True to force a new capture (use when user says "now", "current", "fresh")
+    
+    Returns:
+        A message indicating the snapshot was captured successfully with the image path
+    """
+    try:
+        client = get_api_client()
+        
+        if force_new:
+            # Use /capture/fresh for guaranteed fresh snapshot
+            result = client.capture_fresh_snapshot()
+            snapshot_path = client.download_image(result['snapshot_url'])
+            return f"✅ Fresh snapshot captured. Image saved at: {snapshot_path}"
+        else:
+            # Use regular /capture which may use cache
+            result = client.capture_snapshot()
+            snapshot_path = client.download_image(result['snapshot_url'])
+            return f"✅ Snapshot captured successfully. Image saved at: {snapshot_path}"
+    except Exception as e:
+        logger.error(f"Snapshot capture failed: {e}")
+        return f"❌ Failed to capture snapshot: {str(e)}"
 
-            response = self.vision_llm.invoke(
-                [
-                    HumanMessage(
-                        content=[
-                            {"type": "text", "text": "Describe the weather conditions in this image. Is it sunny, cloudy, partly cloudy, or overcast? Is the water calm or choppy?"},
-                            {
-                                "type": "image_url",
-                                "image_url": {
-                                    "url": f"data:image/jpeg;base64,{base64_image}"
-                                },
-                            },
-                        ]
-                    )
-                ]
-            )
-            return response.content
-        except Exception as e:
-            logger.error(f"Error getting weather from image: {e}")
-            return "Unable to determine weather conditions from the image."
+
+@tool
+def analyze_beach_tool(force_fresh: bool = True) -> str:
+    """
+    Analyze the beach snapshot to count people, boats, and determine locations.
+    
+    Args:
+        force_fresh: Set to True to force a fresh capture and analysis (DEFAULT: True for current data)
+                     Set to False only if user explicitly wants cached/historical data
+    
+    Returns:
+        A formatted string with the analysis results including people count, boat count, and location breakdown
+    """
+    try:
+        client = get_api_client()
+        
+        # If user wants fresh data, force new capture
+        if force_fresh:
+            logger.info("Using /analyze/fresh for guaranteed fresh analysis")
+            result = client.analyze_beach_fresh(download_images=False)
+            result['success'] = True
+        else:
+            tool_instance = get_beach_monitoring_tool()
+            result = tool_instance.analyze_snapshot(snapshot_path=None)
+        
+        if not result.get('success', False):
+            return f"❌ Analysis failed: {result.get('error', 'Unknown error')}"
+        
+        # Format the response
+        response = f"""✅ Beach Analysis Complete:
+
+👥 People: {result['people_count']} total
+   - On beach: {result['beach_count']}
+   - In water: {result['water_count']}
+   - Other areas: {result['other_count']}
+
+🚤 Boats: {result['boat_count']}
+
+📊 Activity Level: {result['activity_level']}
+
+📝 Summary: {result['summary']}
+
+Processing time: {result['processing_time_ms']:.0f}ms
+"""
+        return response
+        
+    except Exception as e:
+        logger.error(f"Beach analysis failed: {e}")
+        return f"❌ Failed to analyze beach: {str(e)}"
+
+
+@tool
+def get_weather_tool(snapshot_path: Optional[str] = None) -> str:
+    """
+    Analyze weather conditions from the beach snapshot using a vision model.
+    
+    Args:
+        snapshot_path: Optional path to a specific snapshot. If not provided, uses the most recent cached snapshot.
+    
+    Returns:
+        A description of the weather conditions visible in the image
+    """
+    try:
+        tool_instance = get_beach_monitoring_tool()
+        weather_description = tool_instance.get_weather_from_snapshot(snapshot_path)
+        return f"🌤️ Weather Conditions:\n{weather_description}"
+    except Exception as e:
+        logger.error(f"Weather analysis failed: {e}")
+        return f"❌ Failed to analyze weather: {str(e)}"
+
 
 @tool
 def get_original_image_tool() -> str:
@@ -223,219 +334,94 @@ def get_original_image_tool() -> str:
     Get the most recent original beach snapshot without capturing a new one.
     
     Use this tool when the user asks to see the "original image" or "raw image"
-    after an analysis has been done. This returns the unmodified snapshot that
-    was used for the most recent analysis.
+    after an analysis has been done.
     
     Returns:
-        Path to the most recent snapshot image.
+        Path to the most recent snapshot image
     """
-    global _snapshot_cache
-    
     try:
-        # Check if we have a cached snapshot
-        if _snapshot_cache.get('path'):
-            snapshot_path = _snapshot_cache['path']
-            if Path(snapshot_path).exists():
-                return f"Here is the original beach image. Image saved at: {snapshot_path}"
-            else:
-                return "No recent snapshot found. Please ask me to analyze the beach first."
-        else:
-            return "No recent snapshot available. Please ask me to analyze the beach first, or capture a new snapshot."
+        client = get_api_client()
+        image_path = client.get_latest_original_image()
+        return f"Here is the original beach image. Image saved at: {image_path}"
     except Exception as e:
-        logger.error(f"Error getting original image: {e}")
-        return f"Failed to get original image: {str(e)}"
+        logger.error(f"Failed to get original image: {e}")
+        return f"❌ Failed to get original image: {str(e)}. Please run analyze_beach_tool first."
 
 
 @tool
 def get_annotated_image_tool() -> str:
     """
     Get the most recent annotated detection image (with bounding boxes).
-
-    Uses the cached snapshot path to derive the annotated image path. If the
-    annotated image does not exist yet, runs analysis to generate it.
-
+    
+    This shows the image with bounding boxes around detected people and boats.
+    
     Returns:
-        Path to the annotated image, or a message if unavailable.
+        Path to the annotated image
     """
-    global _snapshot_cache
-    tool = get_beach_monitoring_tool()
     try:
-        snapshot_path = _snapshot_cache.get('path')
-        if not snapshot_path:
-            return "No recent snapshot available. Please run analyze_beach_tool first."
-
-        sp = Path(snapshot_path)
-        annotated_path = sp.parent / f"{sp.stem}_annotated{sp.suffix}"
-
-        if not annotated_path.exists():
-            # Retry guard: avoid repeated analysis attempts within 60s for same snapshot
-            last = _snapshot_cache['last_attempts']['annotated']
-            now = datetime.now()
-            if last['path'] == str(sp) and last['time'] and (now - last['time']).total_seconds() < 60:
-                return "Annotated image is not available yet. Please try again in a minute."
-
-            # Run analysis to produce annotated image
-            result = tool.analyze_snapshot(str(sp))
-            _snapshot_cache['last_attempts']['annotated'] = {'path': str(sp), 'time': now}
-            if not result.get('success'):
-                return f"Unable to generate annotated image: {result.get('error', 'Unknown error')}"
-
-        if annotated_path.exists():
-            # Attach counts if they correspond to this snapshot
-            counts_text = ""
-            last = _snapshot_cache.get('last_analysis', {})
-            if last.get('path') == str(sp):
-                b = last.get('beach_count') or 0
-                w = last.get('water_count') or 0
-                o = last.get('other_count') or 0
-                total = (last.get('people_count') or (b + w + o))
-                counts_text = f"\nCounts: {total} total ({b} on beach, {w} in water" + (f", {o} other" if o else "") + ")"
-            return f"Annotated image is available at: {annotated_path}{counts_text}"
-        else:
-            return "Annotated image is not available."
+        client = get_api_client()
+        image_path = client.get_latest_annotated_image()
+        return f"Annotated image is available at: {image_path}"
     except Exception as e:
-        logger.error(f"Error getting annotated image: {e}")
-        return f"Failed to get annotated image: {str(e)}"
+        logger.error(f"Failed to get annotated image: {e}")
+        return f"❌ Failed to get annotated image: {str(e)}. Please run analyze_beach_tool first."
 
 
 @tool
 def get_regions_image_tool() -> str:
     """
     Get the most recent regions classification image (beach vs water per person).
-
-    Uses the cached snapshot path to derive the regions image path. If the
-    regions image does not exist yet, runs analysis to try to generate it.
-
-    Note: If location classification is disabled or failed, the regions image
-    may not be produced.
-
+    
+    This shows people color-coded by their location (beach, water, or other).
+    
     Returns:
-        Path to the regions image, or a message if unavailable.
+        Path to the regions/segmented image
     """
-    global _snapshot_cache
-    tool = get_beach_monitoring_tool()
     try:
-        snapshot_path = _snapshot_cache.get('path')
-        if not snapshot_path:
-            return "No recent snapshot available. Please run analyze_beach_tool first."
-
-        sp = Path(snapshot_path)
-        segmented_image_path = sp.parent / f"{sp.stem}_segmented{sp.suffix}"
-
-        if not segmented_image_path.exists():
-            # Retry guard: avoid repeated analysis attempts within 60s for same snapshot
-            last = _snapshot_cache['last_attempts']['regions']
-            now = datetime.now()
-            if last['path'] == str(sp) and last['time'] and (now - last['time']).total_seconds() < 60:
-                return "Regions image is not available yet (classification may be disabled or still processing). Please try again in a minute."
-
-            # Run analysis to try to generate regions image
-            result = tool.analyze_snapshot(str(sp))
-            _snapshot_cache['last_attempts']['regions'] = {'path': str(sp), 'time': now}
-            if not result.get('success'):
-                return f"Unable to generate regions image: {result.get('error', 'Unknown error')}"
-
-        if segmented_image_path.exists():
-            # Attach counts if they correspond to this snapshot
-            counts_text = ""
-            last = _snapshot_cache.get('last_analysis', {})
-            if last.get('path') == str(sp):
-                b = last.get('beach_count') or 0
-                w = last.get('water_count') or 0
-                o = last.get('other_count') or 0
-                total = (last.get('people_count') or (b + w + o))
-                counts_text = f"\nCounts: {total} total ({b} on beach, {w} in water" + (f", {o} other" if o else "") + ")"
-            return f"Regions image is available at: {segmented_image_path}{counts_text}"
-        else:
-            return "Regions image is not available (location classification may be disabled or failed)."
+        client = get_api_client()
+        image_path = client.get_latest_segmented_image()
+        return f"Regions image is available at: {image_path}"
     except Exception as e:
-        logger.error(f"Error getting regions image: {e}")
-        return f"Failed to get regions image: {str(e)}"
-@tool
-def capture_snapshot_tool() -> str:
-    """
-    Capture a NEW snapshot from the beach livestream.
-    
-    Use this tool when the user explicitly wants to see what the beach looks like RIGHT NOW,
-    or when they ask "show me the beach" or "what does it look like now".
-    
-    This captures a fresh image from the YouTube livestream.
-    
-    Returns:
-        Path to the newly captured snapshot image.
-    """
-    tool = get_beach_monitoring_tool()
-    try:
-        snapshot_path = tool.capture_snapshot(force_new=True)
-        return f"Successfully captured fresh beach snapshot. Image saved at: {snapshot_path}"
-    except Exception as e:
-        logger.error(f"Error capturing snapshot: {e}")
-        return f"Failed to capture snapshot: {str(e)}"
+        logger.error(f"Failed to get regions image: {e}")
+        return f"❌ Failed to get regions image: {str(e)}. Please run analyze_beach_tool first."
 
 
-@tool
-def analyze_beach_tool() -> str:
-    """
-    Analyze the beach for people and boat counts.
+# Export tools for the agent
+BEACH_MONITORING_TOOLS = [
+    capture_snapshot_tool,
+    analyze_beach_tool,
+    get_weather_tool,
+    get_original_image_tool,
+    get_annotated_image_tool,
+    get_regions_image_tool,
+]
+
+
+if __name__ == "__main__":
+    # Test the tools
+    import sys
+    logging.basicConfig(level=logging.INFO)
     
-    This tool will use a recently captured snapshot if available (within 5 minutes),
-    or capture a new one if needed. It runs YOLO detection and classifies people
-    as being on beach, in water, or other (boats, etc.).
+    print("\n=== Testing Beach Monitoring Tools (API Version) ===\n")
     
-    Use this tool when the user asks about beach activity, crowding, or counts.
-    
-    Returns:
-        Detailed analysis of beach activity including counts and annotated image path.
-    """
-    tool = get_beach_monitoring_tool()
     try:
-        # Capture snapshot if needed
-        snapshot_path = tool.capture_snapshot()
+        # Test capture
+        print("1. Testing capture_snapshot_tool...")
+        result = capture_snapshot_tool.invoke({"force_new": True})
+        print(result)
         
-        # Analyze it
-        result = tool.analyze_snapshot(snapshot_path)
+        # Test analysis
+        print("\n2. Testing analyze_beach_tool...")
+        result = analyze_beach_tool.invoke({})
+        print(result)
         
-        if result['success']:
-            beach_count = result.get('beach_count', 0)
-            water_count = result.get('water_count', 0)
-            other_count = result.get('other_count', 0)
-            
-            response = f"Current beach status at Kaanapali Beach: {result['summary']}. "
-            response += f"Detected {result['people_count']} people total "
-            
-            if beach_count > 0 or water_count > 0:
-                response += f"({beach_count} on beach, {water_count} in water"
-                if other_count > 0:
-                    response += f", {other_count} other"
-                response += ") "
-            
-            response += f"and {result['boat_count']} boats. "
-            response += f"Annotated image is available at: {result['annotated_image_path']}"
-            
-            return response
-        else:
-            return f"Unable to analyze beach: {result.get('error', 'Unknown error')}"
-            
+        # Test weather
+        print("\n3. Testing get_weather_tool...")
+        result = get_weather_tool.invoke({})
+        print(result)
+        
+        print("\n✅ All tools tested successfully!")
+        
     except Exception as e:
-        logger.error(f"Error in analyze_beach_tool: {e}")
-        return f"Failed to analyze beach: {str(e)}"
-
-
-@tool
-def get_weather_tool() -> str:
-    """
-    Get current weather conditions from the beach camera.
-    
-    This tool captures a snapshot and uses vision AI to describe the weather.
-    
-    Returns:
-        Description of weather conditions (sunny, cloudy, water conditions, etc.).
-    """
-    tool = get_beach_monitoring_tool()
-    try:
-        # Use cached snapshot or capture new one
-        snapshot_path = tool.capture_snapshot()
-        return tool.get_weather_from_image(str(snapshot_path))
-    except Exception as e:
-        logger.error(f"Error getting weather: {e}")
-        return f"Unable to determine weather conditions: {str(e)}"
+        print(f"\n❌ Error during testing: {e}")
+        sys.exit(1)
