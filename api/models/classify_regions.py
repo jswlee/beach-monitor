@@ -54,8 +54,10 @@ class RegionClassifier:
         with open(config_path, 'r', encoding='utf-8') as f:
             self.config = yaml.safe_load(f)
         
-        # Setup device
-        if hasattr(torch.backends, "mps") and torch.backends.mps.is_available():
+        # Setup device - prefer CUDA, then MPS, then CPU
+        if torch.cuda.is_available():
+            self.device = torch.device('cuda')
+        elif hasattr(torch.backends, "mps") and torch.backends.mps.is_available():
             self.device = torch.device('mps')
         else:
             self.device = torch.device('cpu')
@@ -72,11 +74,11 @@ class RegionClassifier:
             logger.info(f"Attempting to load segmentation model from provided path: {source_dir}")
             self._load_model_from_dir(source_dir)
         else:
-            # S3 locations (with env overrides)
-            seg_bucket = os.getenv("SEG_S3_BUCKET_NAME", "beach-detection-model-yolo-finetuned")
-            seg_config_key = os.getenv("SEG_S3_CONFIG_KEY", "waterline-model-config.json")
-            seg_weights_key = os.getenv("SEG_S3_WEIGHTS_KEY", "waterline-model.safetensors")
-            cache_dir = Path(os.getenv("SEG_LOCAL_CACHE_DIR", "./models_cache/segmentation/waterline")).resolve()
+            # S3 locations (hardcoded for segmentation v2 model)
+            seg_bucket = "beach-detection-model-yolo-finetuned"
+            seg_config_key = "segmentation_config_v2.json"
+            seg_weights_key = "segmentation_model_v2.safetensors"
+            cache_dir = Path("./models_cache/segmentation/waterline").resolve()
             cache_dir.mkdir(parents=True, exist_ok=True)
 
             local_config = cache_dir / "config.json"

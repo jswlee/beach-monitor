@@ -12,6 +12,9 @@ import boto3
 from botocore.exceptions import NoCredentialsError
 from dotenv import load_dotenv
 from beach_cv_tool.region_classifier import RegionClassifier
+import torch
+from torch.serialization import add_safe_globals
+from ultralytics.nn.tasks import DetectionModel
 
 # Load environment variables from a .env file
 project_root = Path(__file__).parent.parent
@@ -72,8 +75,24 @@ class BeachDetector:
                 logger.info(f"Model successfully downloaded to: {self.local_model_path}")
 
             # Now, load the model from the local file path
+            # PyTorch 2.6+ defaults torch.load(weights_only=True), which blocks
+            # pickled model classes. Since this checkpoint is our own fine-tuned
+            # YOLO model and we trust its source, we temporarily patch torch.load
+            # to allow loading with weights_only=False.
             logger.info(f"Loading YOLO model from: {self.local_model_path}")
-            self.model = YOLO(self.local_model_path)
+            
+            # Temporarily patch torch.load to use weights_only=False for YOLO
+            _original_load = torch.load
+            def _safe_load(*args, **kwargs):
+                kwargs.setdefault('weights_only', False)
+                return _original_load(*args, **kwargs)
+            torch.load = _safe_load
+            
+            try:
+                self.model = YOLO(self.local_model_path)
+            finally:
+                # Restore original torch.load
+                torch.load = _original_load
             
         except NoCredentialsError:
             logger.error("AWS credentials not found. Ensure AWS_ACCESS_KEY_ID and AWS_SECRET_ACCESS_KEY are in your .env file.")
@@ -81,6 +100,32 @@ class BeachDetector:
         except Exception as e:
             logger.error(f"An error occurred while loading the model: {e}")
             raise
+    
+    def _apply_roi_mask(self, image: np.ndarray, exclude_pool: bool = True) -> np.ndarray:
+        """Apply ROI mask that excludes the pool/boardwalk area from detection."""
+        if not exclude_pool:
+            return image
+
+        height, width = image.shape[:2]
+
+        # Create a white mask (all 1s)
+        mask = np.ones((height, width), dtype=np.uint8)
+
+        # Exclusion area polygon (from Roboflow Polygon Zone tool)
+        exclusion_vertices = np.array([
+            [3, 1077], [1903, 1079], [1911, 1074], [1909, 571], [1852, 585],
+            [1851, 610], [1792, 627], [1792, 660], [1759, 677], [1792, 692],
+            [1654, 744], [1610, 728], [1446, 777], [1308, 808], [1284, 806],
+            [1212, 826], [1156, 816], [906, 866], [806, 909], [806, 924],
+            [775, 930], [776, 941], [709, 934], [635, 958], [595, 956],
+            [363, 991], [254, 1017], [211, 1023], [188, 1018], [46, 1053]
+        ], dtype=np.int32)
+
+        # Fill the exclusion area with black (0s)
+        cv2.fillPoly(mask, [exclusion_vertices], 0)
+
+        masked_image = cv2.bitwise_and(image, image, mask=mask)
+        return masked_image
     
     def detect_objects(self, image: np.ndarray, conf_threshold: float = 0.25) -> Tuple[Dict[str, Any], Any]:
         """
@@ -90,13 +135,19 @@ class BeachDetector:
             logger.error("Model is not loaded. Cannot perform detection.")
             raise ValueError("Model not loaded")
 
-        results = self.model(image, conf=conf_threshold, verbose=False)
+        # Apply ROI mask to exclude pool/boardwalk area from detection
+        roi_image = self._apply_roi_mask(image)
+
+        # Run YOLO inference on the default device (CUDA when available)
+        results = self.model(roi_image, conf=conf_threshold, verbose=False)
+        
         result = results[0]
         
         # Safely get class IDs, handle cases with no detections
         counts = result.boxes.cls.tolist() if result.boxes is not None else []
 
-        people_count = counts.count(1)  # 1 is 'person'
+        # YOLO class IDs (v2): 0=boat, 1=chair, 2=person, 3=surfboard, 4=umbrella
+        people_count = counts.count(2)  # 2 is 'person'
         boat_count = counts.count(0)    # 0 is 'boat'
 
         analysis = {
@@ -147,7 +198,7 @@ class BeachDetector:
                     
                     if result.boxes is not None:
                         for i, cls in enumerate(result.boxes.cls):
-                            if int(cls) == 1:  # 1 is 'person' class
+                            if int(cls) == 2:  # 2 is 'person' class
                                 box = result.boxes.xyxy[i].cpu().numpy()
                                 person_boxes.append({'xyxy': box.tolist()})
                     

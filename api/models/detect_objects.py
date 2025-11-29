@@ -14,6 +14,9 @@ from ultralytics import YOLO
 import boto3
 from botocore.exceptions import NoCredentialsError
 from dotenv import load_dotenv
+import torch
+from torch.serialization import add_safe_globals
+from ultralytics.nn.tasks import DetectionModel
 
 # Load environment variables from a .env file
 project_root = Path(__file__).parent.parent
@@ -35,21 +38,44 @@ class BeachDetector:
     
     def __init__(self, local_cache_dir: str = "./models_cache"):
         """
-        Initialize the detector. The model configuration is read from environment
-        variables and the model file is downloaded from S3 if not cached locally.
+        Initialize the detector.
         
         Args:
             local_cache_dir: Directory to cache the YOLO model
         """
-        self.bucket_name = os.getenv("S3_BUCKET_NAME")
-        self.model_key = os.getenv("S3_MODEL_KEY")
-        
-        if not self.bucket_name or not self.model_key:
-            raise ValueError("S3_BUCKET_NAME and S3_MODEL_KEY environment variables must be set.")
+        # Hardcoded S3 location for the fine-tuned YOLO model
+        self.bucket_name = "beach-detection-model-yolo-finetuned"
+        self.model_key = "object_detection_v2.pt"
 
         self.local_model_path = Path(local_cache_dir) / Path(self.model_key).name
         self.model = None
         self._load_model()
+    
+    def _apply_roi_mask(self, image: np.ndarray, exclude_pool: bool = True) -> np.ndarray:
+        """Apply ROI mask that excludes the pool/boardwalk area from detection."""
+        if not exclude_pool:
+            return image
+
+        height, width = image.shape[:2]
+
+        # Create a white mask (all 1s)
+        mask = np.ones((height, width), dtype=np.uint8)
+
+        # Exclusion area polygon (from Roboflow Polygon Zone tool)
+        exclusion_vertices = np.array([
+            [3, 1077], [1903, 1079], [1911, 1074], [1909, 571], [1852, 585],
+            [1851, 610], [1792, 627], [1792, 660], [1759, 677], [1792, 692],
+            [1654, 744], [1610, 728], [1446, 777], [1308, 808], [1284, 806],
+            [1212, 826], [1156, 816], [906, 866], [806, 909], [806, 924],
+            [775, 930], [776, 941], [709, 934], [635, 958], [595, 956],
+            [363, 991], [254, 1017], [211, 1023], [188, 1018], [46, 1053]
+        ], dtype=np.int32)
+
+        # Fill the exclusion area with black (0s)
+        cv2.fillPoly(mask, [exclusion_vertices], 0)
+
+        masked_image = cv2.bitwise_and(image, image, mask=mask)
+        return masked_image
         
     def _load_model(self):
         """Load the YOLO model, downloading from S3 if it doesn't exist locally."""
@@ -68,8 +94,30 @@ class BeachDetector:
                 logger.info(f"Model successfully downloaded to: {self.local_model_path}")
 
             # Now, load the model from the local file path
+            # PyTorch 2.6+ defaults torch.load(weights_only=True), which blocks
+            # pickled model classes. Since this checkpoint is our own fine-tuned
+            # YOLO model and we trust its source, we temporarily patch torch.load
+            # to allow loading with weights_only=False.
             logger.info(f"Loading YOLO model from: {self.local_model_path}")
-            self.model = YOLO(self.local_model_path)
+            
+            # Temporarily patch torch.load to use weights_only=False for YOLO
+            _original_load = torch.load
+            def _safe_load(*args, **kwargs):
+                kwargs.setdefault('weights_only', False)
+                return _original_load(*args, **kwargs)
+            torch.load = _safe_load
+            
+            try:
+                self.model = YOLO(self.local_model_path)
+            finally:
+                # Restore original torch.load
+                torch.load = _original_load
+            
+            # Log device info for YOLO model
+            model_device = next(self.model.model.parameters()).device
+            logger.info(f"YOLO model loaded on device: {model_device}")
+            if torch.cuda.is_available():
+                logger.info(f"CUDA available: {torch.cuda.get_device_name(0)}")
             
         except NoCredentialsError:
             logger.error("AWS credentials not found. Ensure AWS_ACCESS_KEY_ID and AWS_SECRET_ACCESS_KEY are in your .env file.")
@@ -78,7 +126,7 @@ class BeachDetector:
             logger.error(f"An error occurred while loading the model: {e}")
             raise
     
-    def detect_objects(self, image: np.ndarray, conf_threshold: float = 0.25) -> Tuple[Dict[str, Any], Any]:
+    def detect_objects(self, image: np.ndarray, conf_threshold: float = 0.20)-> Tuple[Dict[str, Any], Any]:
         """
         Detect people and boats in the image.
         
@@ -100,13 +148,18 @@ class BeachDetector:
             logger.error("Model is not loaded. Cannot perform detection.")
             raise ValueError("Model not loaded")
 
-        results = self.model(image, conf=conf_threshold, verbose=False)
+        # Apply ROI mask to exclude pool/boardwalk area from detection
+        roi_image = self._apply_roi_mask(image)
+
+        # Run YOLO inference on the default device (CUDA when available)
+        results = self.model(roi_image, conf=conf_threshold, verbose=False)
         result = results[0]
         
         # Safely get class IDs, handle cases with no detections
         counts = result.boxes.cls.tolist() if result.boxes is not None else []
 
-        people_count = counts.count(1)  # 1 is 'person'
+        # YOLO class IDs (v2): 0=boat, 1=chair, 2=person, 3=surfboard, 4=umbrella
+        people_count = counts.count(2)  # 2 is 'person'
         boat_count = counts.count(0)    # 0 is 'boat'
 
         analysis = {
@@ -124,13 +177,11 @@ if __name__ == '__main__':
         detector = BeachDetector()
         
         # Create a dummy image to test (replace with a real image path)
-        dummy_image_path = "dummy_beach_image.jpg"
-        dummy_image = np.zeros((1080, 1920, 3), dtype=np.uint8)
-        cv2.imwrite(dummy_image_path, dummy_image)
+        dummy_image_path = "demo-photos\youtube_snapshot_20250902_130003_annotated.jpg"
+        dummy_image = cv2.imread(dummy_image_path)
         
         # Load and detect
-        image = cv2.imread(dummy_image_path)
-        detection_result, raw_results = detector.detect_objects(image)
+        detection_result, raw_results = detector.detect_objects(dummy_image)
         
         print("\n--- Detection Result ---")
         print(f"People: {detection_result['people_count']}")

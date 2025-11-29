@@ -9,8 +9,6 @@ pydantic==2.5.3
 # Computer Vision
 opencv-python==4.8.1.78
 ultralytics==8.0.196
-torch==2.1.0
-torchvision==0.16.0
 transformers==4.35.0
 
 # AWS and utilities
@@ -23,6 +21,7 @@ numpy==1.24.3
 # YouTube capture
 yt-dlp==2023.11.16
 pytz==2023.3
+google-api-python-client==2.119.0
 
 # Optional: Rate limiting
 slowapi==0.1.9

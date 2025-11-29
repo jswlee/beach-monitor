@@ -135,7 +135,7 @@ class BeachAnalyzer:
                     
                     if result.boxes is not None:
                         for i, cls in enumerate(result.boxes.cls):
-                            if int(cls) == 1:  # 1 is 'person' class
+                            if int(cls) == 2:  # 2 is 'person' class in YOLO v2
                                 box = result.boxes.xyxy[i].cpu().numpy()
                                 person_boxes.append({'xyxy': box.tolist()})
                     

@@ -78,11 +78,11 @@ class RegionClassifier:
             logger.info(f"Attempting to load segmentation model from provided path: {source_dir}")
             self._load_model_from_dir(source_dir)
         else:
-            # S3 locations (with env overrides)
-            seg_bucket = os.getenv("SEG_S3_BUCKET_NAME", "beach-detection-model-yolo-finetuned")
-            seg_config_key = os.getenv("SEG_S3_CONFIG_KEY", "waterline-model-config.json")
-            seg_weights_key = os.getenv("SEG_S3_WEIGHTS_KEY", "waterline-model.safetensors")
-            cache_dir = Path(os.getenv("SEG_LOCAL_CACHE_DIR", "./models_cache/segmentation/waterline")).resolve()
+            # S3 locations (hardcoded for segmentation v2 model)
+            seg_bucket = "beach-detection-model-yolo-finetuned"
+            seg_config_key = "segmentation_config_v2.json"
+            seg_weights_key = "segmentation_model_v2.safetensors"
+            cache_dir = Path("./models_cache/segmentation/waterline").resolve()
             cache_dir.mkdir(parents=True, exist_ok=True)
 
             local_config = cache_dir / "config.json"

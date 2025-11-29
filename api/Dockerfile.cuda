@@ -1,0 +1,63 @@
+# CUDA-enabled Dockerfile for Beach Monitor API
+# Supports NVIDIA GPUs for accelerated inference
+
+FROM nvidia/cuda:12.1.0-runtime-ubuntu22.04
+
+# Prevent interactive prompts during package installation
+ENV DEBIAN_FRONTEND=noninteractive
+
+# Install Python 3.10 and system dependencies
+RUN apt-get update && apt-get install -y \
+    python3.10 \
+    python3.10-venv \
+    python3-pip \
+    libgl1-mesa-glx \
+    libglib2.0-0 \
+    libsm6 \
+    libxext6 \
+    libxrender-dev \
+    ffmpeg \
+    curl \
+    && rm -rf /var/lib/apt/lists/* \
+    && ln -sf /usr/bin/python3.10 /usr/bin/python \
+    && ln -sf /usr/bin/pip3 /usr/bin/pip
+
+# Set working directory
+WORKDIR /app
+
+# Copy requirements first (for caching)
+COPY api/requirements.txt .
+
+# Upgrade pip and core packaging tools to avoid resolver bugs
+RUN python -m pip install --upgrade pip setuptools wheel
+
+# Install PyTorch with CUDA 13.0 support first (override CPU version in requirements)
+RUN pip3 install --no-cache-dir torch torchvision
+
+# Install remaining requirements (torch/torchvision will be skipped as already installed)
+RUN pip install --no-cache-dir -r requirements.txt
+
+# Copy API code, shared CV tools, and config
+COPY api/ ./api/
+COPY beach_cv_tool/ ./beach_cv_tool/
+COPY config.yaml .
+COPY demo-photos/ ./demo-photos/
+
+# Create directories for outputs
+RUN mkdir -p data/snapshots models_cache raw_seg_images
+
+# Expose API port
+EXPOSE 8000
+
+# Set environment variables
+ENV PYTHONUNBUFFERED=1
+ENV PYTHONPATH=/app
+# Force PyTorch to use CUDA
+ENV CUDA_VISIBLE_DEVICES=0
+
+# Health check
+HEALTHCHECK --interval=30s --timeout=10s --start-period=60s --retries=3 \
+    CMD python -c "import requests; requests.get('http://localhost:8000/health').raise_for_status()"
+
+# Run FastAPI with uvicorn
+CMD ["uvicorn", "api.main:app", "--host", "0.0.0.0", "--port", "8000"]
