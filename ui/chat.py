@@ -103,7 +103,6 @@ def main():
                         # Optionally emphasize counts under the image
                         if counts_text and counts_text != primary_text:
                             st.markdown(f"**{counts_text}**")
-                        snapshot_displayed = True
                         image_to_save = str(snapshot_path)
                     else:
                         st.error(f"Image file not found at: {snapshot_path}")
@@ -129,9 +128,9 @@ def main():
         st.markdown("""
         This beach monitor uses AI to analyze live camera feeds from Kaanapali Beach.
         
-        **What I can tell you:**
-        - Number of people in the water and on the beach
-        - Beach activity level (quiet, moderate, busy) with number of people and boats
+        **What I can do:**
+        - Count number of people in the water and on the beach
+        - Return the original, annotated, or segmented images used for those counts
         - Qualitative description of weather conditions
         
         **Example questions:**
