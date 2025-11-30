@@ -51,15 +51,8 @@ def main():
                     caption = message.get("image_caption", "Beach Image")
                     st.image(str(image_path), caption=caption, use_column_width=True)
     
-    # Chat input (supports queued prompts from sidebar buttons)
-    prompt = None
-    if st.session_state.get("queued_prompt"):
-        prompt = st.session_state.queued_prompt
-        st.session_state.queued_prompt = None
-    else:
-        prompt = st.chat_input("How busy is the beach now?")
-
-    if prompt:
+    # Chat input
+    if prompt := st.chat_input("How busy is the beach now?"):
         # Add user message to chat history
         st.session_state.messages.append({"role": "user", "content": prompt})
         with st.chat_message("user"):
@@ -146,13 +139,49 @@ def main():
         - "What's the weather like?"
         """)
 
-        if st.button("Try it out"):
-            example_prompt = "How many people are on the beach vs the water?"
-            # Immediately add a user message so it shows in the chat before analysis completes
-            st.session_state.messages.append({"role": "user", "content": example_prompt})
-            st.session_state.queued_prompt = example_prompt
+        if st.button("Count People"):
+            with st.spinner("Counting people on the beach and in the water..."):
+                prompt = "How many people are on the beach vs the water?"
+                st.session_state.messages.append({"role": "user", "content": prompt})
+
+                agent_state = st.session_state.agent.query(prompt)
+                response = agent_state['messages'][-1].content
+                snapshot_path = agent_state.get('snapshot_path')
+                image_caption = agent_state.get('image_caption')
+                counts_text = agent_state.get('counts_text')
+
+                cleaned_response = "".join(
+                    line + "\n"
+                    for line in response.splitlines()
+                    if not line.lstrip().startswith("![")
+                ).strip()
+
+                primary_text = cleaned_response if cleaned_response else (counts_text or "")
+                content_to_save = primary_text
+                save_content = content_to_save if content_to_save.strip() else ""
+
+                image_to_save = None
+                if snapshot_path:
+                    from pathlib import Path
+                    if not Path(snapshot_path).is_absolute():
+                        snapshot_path = Path.cwd() / snapshot_path
+                    else:
+                        snapshot_path = Path(snapshot_path)
+
+                    if snapshot_path.exists():
+                        image_to_save = str(snapshot_path)
+
+                message_data = {
+                    "role": "assistant",
+                    "content": save_content,
+                }
+                if image_to_save:
+                    message_data["image_path"] = image_to_save
+                    message_data["image_caption"] = image_caption
+
+                st.session_state.messages.append(message_data)
             st.rerun()
-        
+
         if st.button("Clear Chat"):
             st.session_state.messages = []
             st.rerun()
