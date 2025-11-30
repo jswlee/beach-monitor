@@ -162,7 +162,6 @@ def main():
 
                 image_to_save = None
                 if snapshot_path:
-                    from pathlib import Path
                     if not Path(snapshot_path).is_absolute():
                         snapshot_path = Path.cwd() / snapshot_path
                     else:
