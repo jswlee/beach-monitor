@@ -51,8 +51,15 @@ def main():
                     caption = message.get("image_caption", "Beach Image")
                     st.image(str(image_path), caption=caption, use_column_width=True)
     
-    # Chat input
-    if prompt := st.chat_input("How busy is the beach now?"):
+    # Chat input (supports queued prompts from sidebar buttons)
+    prompt = None
+    if st.session_state.get("queued_prompt"):
+        prompt = st.session_state.queued_prompt
+        st.session_state.queued_prompt = None
+    else:
+        prompt = st.chat_input("How busy is the beach now?")
+
+    if prompt:
         # Add user message to chat history
         st.session_state.messages.append({"role": "user", "content": prompt})
         with st.chat_message("user"):
@@ -138,6 +145,10 @@ def main():
         - "How busy is the beach now?"
         - "What's the weather like?"
         """)
+
+        if st.button("Try it out"):
+            st.session_state.queued_prompt = "How many people are on the beach vs the water?"
+            st.rerun()
         
         if st.button("Clear Chat"):
             st.session_state.messages = []
