@@ -90,7 +90,6 @@ def main():
 
                 # Then display image if agent provided one
                 image_to_save = None
-                snapshot_displayed = False
                 if snapshot_path:
                     # Convert to absolute path if needed
                     if not Path(snapshot_path).is_absolute():
