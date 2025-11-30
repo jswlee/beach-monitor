@@ -76,7 +76,15 @@ def main():
                 logger.info(f"Snapshot path: {snapshot_path}")
 
                 # First display the main text response (so narration appears before images)
-                primary_text = response if response.strip() else (counts_text or "")
+                # Strip any markdown image lines like '![Label](...)' to avoid broken
+                # image links such as a stray 'Segmented Image' label.
+                cleaned_response = "".join(
+                    line + "\n"
+                    for line in response.splitlines()
+                    if not line.lstrip().startswith("![")
+                ).strip()
+
+                primary_text = cleaned_response if cleaned_response else (counts_text or "")
                 if primary_text:
                     st.markdown(primary_text)
 
