@@ -276,6 +276,7 @@ def analyze_beach_tool(force_fresh: bool = True) -> str:
         # If user wants fresh data, force new capture
         if force_fresh:
             logger.info("Using /analyze/fresh for guaranteed fresh analysis")
+            # Call fresh analysis endpoint (does not download images by default)
             result = client.analyze_beach_fresh(download_images=False)
             result['success'] = True
         else:
@@ -301,6 +302,18 @@ def analyze_beach_tool(force_fresh: bool = True) -> str:
 
 Processing time: {result['processing_time_ms']:.0f}ms
 """
+
+        # If an annotated image URL is available, download it and append the local path
+        try:
+            annotated_path = None
+            annotated_url = result.get('annotated_image_url')
+            if annotated_url:
+                annotated_path = client.download_image(annotated_url)
+            if annotated_path:
+                response += f"\n\nImage saved at: {annotated_path}"
+        except Exception as e:
+            logger.warning(f"Failed to download annotated image: {e}")
+
         return response
         
     except Exception as e:

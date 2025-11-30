@@ -131,6 +131,7 @@ class BeachMonitorAgent:
         regions_image_path = None
         image_caption = None
         counts_text = None
+        people_count = None
         
         called_tools = []
         for tool_call in tool_calls:
@@ -148,17 +149,39 @@ class BeachMonitorAgent:
             logger.info(f"Tool {tool_name} returned: {result_text[:200]}")
             
             # Extract paths and set captions based on tool name and output
-            if tool_name == "get_annotated_image_tool" and "Annotated image is available at:" in result_text:
+            if tool_name == "analyze_beach_tool":
+                # Try to parse people_count from the formatted analysis text
+                for line in result_text.splitlines():
+                    if "People:" in line:
+                        # Expected format: "👥 People: X total" (or similar)
+                        try:
+                            part = line.split("People:")[-1]
+                            num_str = part.strip().split()[0]
+                            people_count = int(num_str)
+                        except Exception:
+                            pass
+                # Also look for a downloaded annotated image path
+                if "Image saved at:" in result_text:
+                    path_part = result_text.split("Image saved at:")[-1]
+                    annotated_image_path = path_part.split("\n")[0].strip()
+                    snapshot_path = annotated_image_path
+                    image_caption = "Beach Image"
+
+            elif tool_name == "get_annotated_image_tool" and "Annotated image is available at:" in result_text:
                 path_part = result_text.split("Annotated image is available at: ")[-1]
                 annotated_image_path = path_part.split("\n")[0].strip()
                 snapshot_path = annotated_image_path
                 image_caption = "Annotated Beach Snapshot"
                 
             elif tool_name == "get_regions_image_tool" and "Regions image is available at:" in result_text:
-                path_part = result_text.split("Regions image is available at: ")[-1]
-                regions_image_path = path_part.split("\n")[0].strip()
-                snapshot_path = regions_image_path
-                image_caption = "Segmented Image (Beach vs Water)"
+                # Only use the segmented image if we actually detected people.
+                # When people_count == 0, prefer showing the original/annotated image
+                # from the analysis instead of a stale segmented image.
+                if people_count is None or people_count > 0:
+                    path_part = result_text.split("Regions image is available at: ")[-1]
+                    regions_image_path = path_part.split("\n")[0].strip()
+                    snapshot_path = regions_image_path
+                    image_caption = "Segmented Image (Beach vs Water)"
                 
             elif tool_name == "get_original_image_tool" and "Image saved at:" in result_text:
                 path_part = result_text.split("Image saved at:")[-1]
