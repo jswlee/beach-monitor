@@ -147,7 +147,10 @@ def main():
         """)
 
         if st.button("Try it out"):
-            st.session_state.queued_prompt = "How many people are on the beach vs the water?"
+            example_prompt = "How many people are on the beach vs the water?"
+            # Immediately add a user message so it shows in the chat before analysis completes
+            st.session_state.messages.append({"role": "user", "content": example_prompt})
+            st.session_state.queued_prompt = example_prompt
             st.rerun()
         
         if st.button("Clear Chat"):
