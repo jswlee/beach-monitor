@@ -8,6 +8,7 @@ from langgraph.prebuilt import ToolExecutor, ToolInvocation
 from langchain_core.messages import BaseMessage, HumanMessage, AIMessage, ToolMessage
 from langchain_core.tools import tool
 from langchain_openai import ChatOpenAI
+from agent.api_client import get_api_client
 from .tools import (
     capture_snapshot_tool,
     analyze_beach_tool,
@@ -204,12 +205,25 @@ class BeachMonitorAgent:
             )
             tool_messages.append(tool_message)
 
+        # If the analysis found zero people, prefer showing the original, unmasked
+        # beach image instead of any masked/annotated image from detection.
+        if people_count == 0:
+            try:
+                client = get_api_client()
+                original_path = client.get_latest_original_image()
+                if original_path:
+                    snapshot_path = original_path
+                    image_caption = "Beach Image"
+            except Exception as e:
+                logger.warning(f"Failed to get original image for zero-people case: {e}")
+
         # Suppress image display if no explicit image tool was called
         explicit_image_tools = {
             "capture_snapshot_tool",
             "get_original_image_tool",
             "get_annotated_image_tool",
             "get_regions_image_tool",
+            "analyze_beach_tool",
         }
         if not any(t in explicit_image_tools for t in called_tools):
             snapshot_path = None
