@@ -36,7 +36,7 @@ class BeachDetector:
     For complete beach analysis including region classification, use BeachAnalyzer.
     """
     
-    def __init__(self, local_cache_dir: str = "./models_cache"):
+    def __init__(self, local_cache_dir: str = "./models_cache", model_path: str = None):
         """
         Initialize the detector.
         
@@ -46,8 +46,11 @@ class BeachDetector:
         # Hardcoded S3 location for the fine-tuned YOLO model
         self.bucket_name = "beach-detection-model-yolo-finetuned"
         self.model_key = "object_detection_v2.pt"
-
-        self.local_model_path = Path(local_cache_dir) / Path(self.model_key).name
+        # If a local model path is provided, prefer it over S3/cache
+        if model_path:
+            self.local_model_path = Path(model_path)
+        else:
+            self.local_model_path = Path(local_cache_dir) / Path(self.model_key).name
         self.model = None
         self._load_model()
     
@@ -152,7 +155,7 @@ class BeachDetector:
         roi_image = self._apply_roi_mask(image)
 
         # Run YOLO inference on the default device (CUDA when available)
-        results = self.model(roi_image, conf=conf_threshold, verbose=False)
+        results = self.model(roi_image, conf=conf_threshold, verbose=False, imgsz=1920)
         result = results[0]
         
         # Safely get class IDs, handle cases with no detections
