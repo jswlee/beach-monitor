@@ -198,7 +198,9 @@ class BeachDetector:
                     
                     if result.boxes is not None:
                         for i, cls in enumerate(result.boxes.cls):
-                            if int(cls) == 2:  # 2 is 'person' class
+                            # Hardcoded for now - this old detector doesn't load data.yaml
+                            # TODO: Update this detector to use data.yaml like api/models/detect_objects.py
+                            if int(cls) == 2:  # 2 is 'person' class in old model
                                 box = result.boxes.xyxy[i].cpu().numpy()
                                 person_boxes.append({'xyxy': box.tolist()})
                     

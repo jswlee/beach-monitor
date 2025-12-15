@@ -1,0 +1,11 @@
+names:
+  0: bird
+  1: boat
+  2: chair
+  3: person
+  4: surfboard
+  5: umbrella
+path: C:\Users\JR\Documents\GitHub\cv-training\processed_images_enlarged_boxes
+test: C:\Users\JR\Documents\GitHub\cv-training\processed_images_enlarged_boxes\test\images
+train: C:\Users\JR\Documents\GitHub\cv-training\processed_images_enlarged_boxes\train\images
+val: C:\Users\JR\Documents\GitHub\cv-training\processed_images_enlarged_boxes\valid\images

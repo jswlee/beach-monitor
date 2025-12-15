@@ -101,13 +101,14 @@ def main():
         sys.exit(1)
 
     # Build person boxes for segmentation classifier
+    # Use the person_class_id from the detector (loaded from data.yaml)
     person_boxes = []
     try:
         result = raw_results[0]
         if result.boxes is not None:
             for i, cls in enumerate(result.boxes.cls):
-                # YOLO mapping used in detector: 2 == person
-                if int(cls) == 2:
+                # Use dynamic person class ID from detector
+                if int(cls) == detector.person_class_id:
                     box = result.boxes.xyxy[i].cpu().numpy()
                     person_boxes.append({'xyxy': box.tolist()})
     except Exception as e:

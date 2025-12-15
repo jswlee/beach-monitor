@@ -8,6 +8,7 @@ import cv2
 import numpy as np
 import logging
 import os
+import yaml
 from typing import Dict, Any, Tuple
 from pathlib import Path
 from ultralytics import YOLO
@@ -18,6 +19,7 @@ import torch
 from torch.serialization import add_safe_globals
 from ultralytics.nn.tasks import DetectionModel
 
+
 # Load environment variables from a .env file
 project_root = Path(__file__).parent.parent
 dotenv_path = project_root / '.env'
@@ -27,6 +29,9 @@ load_dotenv(dotenv_path=dotenv_path)
 logging.basicConfig(level=logging.INFO, format='%(asctime)s - %(levelname)s - %(message)s')
 logger = logging.getLogger(__name__)
 
+BEACH_ROI = [
+    np.array([[2, 447], [1862, 383], [1822, 993], [0, 1073]])
+]
 
 class BeachDetector:
     """
@@ -36,13 +41,40 @@ class BeachDetector:
     For complete beach analysis including region classification, use BeachAnalyzer.
     """
     
-    def __init__(self, local_cache_dir: str = "./models_cache", model_path: str = None):
+    def __init__(self, model_path: str = None, data_yaml_path: str = "data.yaml"):
         """
-        Initialize the detector.
+        Initialize the BeachDetector.
         
         Args:
-            local_cache_dir: Directory to cache the YOLO model
+            model_path: Path to the YOLO model file. If None, downloads from S3.
+            data_yaml_path: Path to data.yaml containing class mappings.
         """
+        self.model = None
+        self.device = 'cuda' if torch.cuda.is_available() else 'cpu'
+        
+        # Load class mappings from data.yaml
+        self.class_names = {}
+        self.person_class_id = None
+        self.boat_class_id = None
+        
+        if os.path.exists(data_yaml_path):
+            with open(data_yaml_path, 'r') as f:
+                data_config = yaml.safe_load(f)
+                self.class_names = data_config.get('names', {})
+                
+                # Find person and boat class IDs
+                for class_id, class_name in self.class_names.items():
+                    if class_name == 'person':
+                        self.person_class_id = class_id
+                    elif class_name == 'boat':
+                        self.boat_class_id = class_id
+                        
+                logger.info(f"Loaded class mappings: person={self.person_class_id}, boat={self.boat_class_id}")
+        else:
+            logger.warning(f"data.yaml not found at {data_yaml_path}, using default class IDs")
+            self.person_class_id = 2
+            self.boat_class_id = 0
+        
         # Hardcoded S3 location for the fine-tuned YOLO model
         self.bucket_name = "beach-detection-model-yolo-finetuned"
         self.model_key = "object_detection_v2.pt"
@@ -50,7 +82,7 @@ class BeachDetector:
         if model_path:
             self.local_model_path = Path(model_path)
         else:
-            self.local_model_path = Path(local_cache_dir) / Path(self.model_key).name
+            self.local_model_path = Path("./models_cache") / Path(self.model_key).name
         self.model = None
         self._load_model()
     
@@ -154,16 +186,29 @@ class BeachDetector:
         # Apply ROI mask to exclude pool/boardwalk area from detection
         roi_image = self._apply_roi_mask(image)
 
-        # Run YOLO inference on the default device (CUDA when available)
-        results = self.model(roi_image, conf=conf_threshold, verbose=False, imgsz=1920)
+        # Crop to the bounding box of the configured beach ROI polygon
+        height, width = roi_image.shape[:2]
+        roi_points = BEACH_ROI[0]
+        x_coords = roi_points[:, 0]
+        y_coords = roi_points[:, 1]
+
+        x_min = max(int(x_coords.min()), 0)
+        x_max = min(int(x_coords.max()), width - 1)
+        y_min = max(int(y_coords.min()), 0)
+        y_max = min(int(y_coords.max()), height - 1)
+
+        cropped_image = roi_image[y_min:y_max, x_min:x_max]
+
+        # Run YOLO inference on the cropped ROI image
+        results = self.model(cropped_image, conf=conf_threshold, verbose=False, imgsz=1920)
         result = results[0]
         
         # Safely get class IDs, handle cases with no detections
         counts = result.boxes.cls.tolist() if result.boxes is not None else []
 
-        # YOLO class IDs (v2): 0=boat, 1=chair, 2=person, 3=surfboard, 4=umbrella
-        people_count = counts.count(2)  # 2 is 'person'
-        boat_count = counts.count(0)    # 0 is 'boat'
+        # Count using dynamically loaded class IDs
+        people_count = counts.count(self.person_class_id) if self.person_class_id is not None else 0
+        boat_count = counts.count(self.boat_class_id) if self.boat_class_id is not None else 0
 
         analysis = {
             'people_count': people_count,

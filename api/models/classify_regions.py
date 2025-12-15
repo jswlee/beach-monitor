@@ -33,6 +33,19 @@ try:
 except Exception:
     pass
 
+BEACH_ROI = [
+    np.array([[2, 447], [1862, 383], [1822, 993], [0, 1073]])
+]
+
+EXCLUSION_VERTICES = np.array([
+    [3, 1077], [1903, 1079], [1911, 1074], [1909, 571], [1852, 585],
+    [1851, 610], [1792, 627], [1792, 660], [1759, 677], [1792, 692],
+    [1654, 744], [1610, 728], [1446, 777], [1308, 808], [1284, 806],
+    [1212, 826], [1156, 816], [906, 866], [806, 909], [806, 924],
+    [775, 930], [776, 941], [709, 934], [635, 958], [595, 956],
+    [363, 991], [254, 1017], [211, 1023], [188, 1018], [46, 1053]
+], dtype=np.int32)
+
 
 class RegionClassifier:
     """
@@ -42,17 +55,38 @@ class RegionClassifier:
     For complete beach analysis including object detection, use BeachAnalyzer.
     """
     
-    def __init__(self, model_path: str = None, config_path: str = "config.yaml"):
+    def __init__(self, model_path: str = None, config_path: str = "config.yaml", data_yaml_path: str = "data.yaml"):
         """
         Initialize the region classifier with water-beach segmentation model.
         
         Args:
             model_path: Path to trained model. If None, downloads from S3.
             config_path: Path to configuration file.
+            data_yaml_path: Path to data.yaml containing YOLO class mappings.
         """
         # Load configuration
         with open(config_path, 'r', encoding='utf-8') as f:
             self.config = yaml.safe_load(f)
+        
+        # Load YOLO class mappings from data.yaml
+        self.yolo_class_names = {}
+        self.person_class_id = None
+        
+        if os.path.exists(data_yaml_path):
+            with open(data_yaml_path, 'r') as f:
+                data_config = yaml.safe_load(f)
+                self.yolo_class_names = data_config.get('names', {})
+                
+                # Find person class ID
+                for class_id, class_name in self.yolo_class_names.items():
+                    if class_name == 'person':
+                        self.person_class_id = class_id
+                        break
+                        
+                logger.info(f"Loaded YOLO class mappings: person={self.person_class_id}")
+        else:
+            logger.warning(f"data.yaml not found at {data_yaml_path}, using default person class ID")
+            self.person_class_id = 2
         
         # Setup device - prefer CUDA, then MPS, then CPU
         if torch.cuda.is_available():
@@ -123,6 +157,27 @@ class RegionClassifier:
         except Exception as e:
             logger.error(f"Failed to load model from {model_dir}: {e}")
             raise
+    
+    def _crop_to_detection_roi(self, image: np.ndarray) -> Tuple[np.ndarray, int, int]:
+        """Crop image to the detection ROI bounding box.
+
+        Returns cropped image and the (x_min, y_min) offsets so boxes/points
+        can be mapped into the cropped coordinate space.
+        """
+        height, width = image.shape[:2]
+
+        # Crop to the bounding box of the configured beach ROI polygon
+        roi_points = BEACH_ROI[0]
+        x_coords = roi_points[:, 0]
+        y_coords = roi_points[:, 1]
+
+        x_min = max(int(x_coords.min()), 0)
+        x_max = min(int(x_coords.max()), width - 1)
+        y_min = max(int(y_coords.min()), 0)
+        y_max = min(int(y_coords.max()), height - 1)
+
+        cropped_image = image[y_min:y_max, x_min:x_max]
+        return cropped_image, x_min, y_min
     
     def _apply_mask(self, image: np.ndarray) -> np.ndarray:
         """
@@ -202,13 +257,19 @@ class RegionClassifier:
         y = max(0, min(y, h - 1))
         
         # Get class ID at point
-        class_id = segmentation[y, x]
-        class_name = self.id2label.get(class_id, 'other')
-        
-        # Map to simplified categories
-        if class_name == 'water':
+        class_id = int(segmentation[y, x])
+
+        # DEBUG: Log what class IDs we're actually seeing
+        logger.debug(f"Point ({x}, {y}) has class_id: {class_id}")
+
+        # Interpret raw numeric IDs directly for now.
+        # Current assumption based on training:
+        #   2 -> beach
+        #   3 -> water
+        #   anything else -> other/background
+        if class_id == 3:
             return 'water'
-        elif class_name == 'beach':
+        elif class_id == 2:
             return 'beach'
         else:
             return 'other'
@@ -267,20 +328,44 @@ class RegionClassifier:
             }
         
         try:
-            # Apply mask and run segmentation
-            masked_image = self._apply_mask(image)
-            segmentation = self._segment_image(masked_image)
+            # Match the training pipeline:
+            # 1. Apply beach polygon mask on FULL image (as in training)
+            # 2. Crop to detection ROI bounding box (for speed)
+            # 3. Segment (which internally resizes to 512x512)
+            # Note: We don't apply the pool exclusion mask here because the
+            # segmentation model was trained without it.
+            
+            # Step 1: Apply beach mask on full image (training used this)
+            masked_full_image = self._apply_mask(image)
+            
+            # Step 2: Crop to detection ROI bbox (no exclusion mask)
+            detection_roi_image, x_offset, y_offset = self._crop_to_detection_roi(masked_full_image)
+            
+            # Step 3: Segment (resizes to 512x512 internally)
+            segmentation = self._segment_image(detection_roi_image)
             
             # Save raw segmentation for debugging if requested
             if save_raw_segmentation:
                 self._save_raw_segmentation(segmentation, annotated_path)
             
             classifications = []
+            class_ids_seen = []
             
             # Classify each person based on their bounding box location
             for idx, bbox in enumerate(person_boxes):
+                # Person boxes are already in cropped ROI coordinates (from YOLO),
+                # so we don't need to shift them again.
                 # Use bottom-center of bbox (where feet are) for more accurate classification
                 point = self._get_bbox_bottom_center(bbox)
+                
+                # Store the class_id for debugging
+                x, y = int(point[0]), int(point[1])
+                h, w = segmentation.shape
+                x = max(0, min(x, w - 1))
+                y = max(0, min(y, h - 1))
+                class_id_at_point = int(segmentation[y, x])
+                class_ids_seen.append(class_id_at_point)
+                
                 location = self._classify_point_from_segmentation(segmentation, point)
                 
                 classifications.append({
@@ -289,7 +374,11 @@ class RegionClassifier:
                     'point': point
                 })
                 
-                logger.debug(f"Box {idx} at {point}: {location}")
+                logger.debug(f"Box {idx} at {point}: {location} (class_id={class_id_at_point})")
+            
+            # Log summary of class IDs seen
+            unique_ids = set(class_ids_seen)
+            logger.info(f"Unique class IDs at person locations: {sorted(unique_ids)}")
             
             # Count by location
             beach_count = sum(1 for c in classifications if c['location'] == 'beach')
@@ -298,7 +387,7 @@ class RegionClassifier:
             
             # Save annotated image if requested
             if save_annotated and annotated_path:
-                self._save_annotated_image(image, person_boxes, classifications, annotated_path)
+                self._save_annotated_image(detection_roi_image, person_boxes, classifications, annotated_path)
             
             result = {
                 'classifications': classifications,
