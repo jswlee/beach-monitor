@@ -35,7 +35,8 @@ def main():
     parser.add_argument("--image", default="demo-photos/youtube_snapshot_20250902_135358.jpg", help="Path to image to run inference on")
     parser.add_argument("--seg-model", help="Optional path to segmentation model directory")
     parser.add_argument("--skip-models", action="store_true", help="Do not attempt to load models (dry run)")
-    parser.add_argument("--det-model", help="Optional path to local YOLO model file to use instead of S3")
+    parser.add_argument("--det-model", help="Optional path to local YOLO model file (.pt or .tflite)")
+    parser.add_argument("--use-tflite", action="store_true", help="Use TFLite model for detection (faster on CPU)")
     args = parser.parse_args()
 
     repo_root = Path(__file__).parent
@@ -65,15 +66,30 @@ def main():
 
     # Import model classes from api.models
     try:
-        from api.models.detect_objects import BeachDetector
         from api.models.classify_regions import RegionClassifier
+        
+        # Import appropriate detector based on model type
+        if args.use_tflite or (args.det_model and args.det_model.endswith('.tflite')):
+            from api.models.detect_objects_tflite import BeachDetectorTFLite as BeachDetector
+            logger.info("Using TFLite detector")
+        else:
+            from api.models.detect_objects import BeachDetector
+            logger.info("Using PyTorch detector")
     except Exception as e:
         logger.error(f"Failed to import model classes: {e}")
         sys.exit(1)
 
     # Initialize detector
     try:
-        detector = BeachDetector(model_path=args.det_model) if args.det_model else BeachDetector()
+        if args.use_tflite or (args.det_model and args.det_model.endswith('.tflite')):
+            # TFLite detector requires model_path
+            if not args.det_model:
+                logger.error("TFLite detector requires --det-model argument")
+                sys.exit(1)
+            detector = BeachDetector(model_path=args.det_model)
+        else:
+            # PyTorch detector
+            detector = BeachDetector(model_path=args.det_model) if args.det_model else BeachDetector()
 
         # --- Start Detection Timing ---
         start_time_det = time.time()
@@ -104,13 +120,24 @@ def main():
     # Use the person_class_id from the detector (loaded from data.yaml)
     person_boxes = []
     try:
-        result = raw_results[0]
-        if result.boxes is not None:
-            for i, cls in enumerate(result.boxes.cls):
-                # Use dynamic person class ID from detector
+        if args.use_tflite or (args.det_model and args.det_model.endswith('.tflite')):
+            # TFLite returns dict with boxes, scores, class_ids
+            boxes = raw_results.get('boxes', [])
+            class_ids = raw_results.get('class_ids', [])
+            
+            for i, cls in enumerate(class_ids):
                 if int(cls) == detector.person_class_id:
-                    box = result.boxes.xyxy[i].cpu().numpy()
+                    box = boxes[i]
                     person_boxes.append({'xyxy': box.tolist()})
+        else:
+            # PyTorch YOLO returns results object
+            result = raw_results[0]
+            if result.boxes is not None:
+                for i, cls in enumerate(result.boxes.cls):
+                    # Use dynamic person class ID from detector
+                    if int(cls) == detector.person_class_id:
+                        box = result.boxes.xyxy[i].cpu().numpy()
+                        person_boxes.append({'xyxy': box.tolist()})
     except Exception as e:
         logger.warning(f"Failed to extract person boxes from detector results: {e}")
 
